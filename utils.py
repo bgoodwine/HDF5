@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3.10
 
+import time
 import h5py
-import pprint as pp
 import numpy as np
 
 # traverse hdf5 file and print structure
@@ -15,7 +15,23 @@ def tree(f, prefix='  '):
             tree(n, prefix=prefix+'  ')
         else:
             print(prefix + dataset)
+            print(n[()])
 
+# traverse hdf5 file and access all data (chunk cache irrelevant)
+def dump(f):
+    for dataset in f.keys():
+        n = f.get(dataset)
+        if isinstance(n, h5py.Group):
+            dump(n)
+        else:
+            n = n[()]
+
+# returns time in seconds to read entire dataset
+def testread(f):
+    start = time.time()
+    dump(f)
+    end = time.time()
+    return end-start
 
 # traverse hdf5 file and print structure
 def file2dict(f, d={}, prefix=[]):
@@ -53,10 +69,10 @@ def write_rand(file_name):
     
 
 def main():
-    f = h5py.File('files/TempData.hdf5', 'a')
-    tree(f)
-    d = file2dict(f)
-    pp.pprint(d)
+    filename = 'files/TempData.hdf5'
+    f = h5py.File(filename, 'a')
+    readtime = testread(f)
+    print(f'Time to read {filename}: {readtime}')
 
 
 if __name__ == '__main__':
