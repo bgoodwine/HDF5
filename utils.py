@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3.10
 
 import h5py
+import pprint as pp
 import numpy as np
 
 # traverse hdf5 file and print structure
@@ -15,6 +16,24 @@ def tree(f, prefix='  '):
         else:
             print(prefix + dataset)
 
+
+# traverse hdf5 file and print structure
+def file2dict(f, d={}, prefix=[]):
+    if f.name == '/':
+        d = {}
+    else:
+        for p in prefix:
+            d = d[p]
+
+    for dataset in f.keys():
+        n = f.get(dataset)
+        if isinstance(n, h5py.Group):
+            d[n.name] = {}
+            file2dict(n, d=d, prefix=[n.name])
+        else:
+            d[n.name] = n
+
+    return d
 
 # write random data to an hdf5 file
 def write_rand(file_name):
@@ -36,6 +55,8 @@ def write_rand(file_name):
 def main():
     f = h5py.File('files/TempData.hdf5', 'a')
     tree(f)
+    d = file2dict(f)
+    pp.pprint(d)
 
 
 if __name__ == '__main__':
