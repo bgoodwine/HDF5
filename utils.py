@@ -34,8 +34,7 @@ def write_rand(file_name):
     
 
 def main():
-    file_name = 'mytestfile.hdf5'
-    f = h5py.File('TempData.hdf5', 'a')
+    f = h5py.File('files/TempData.hdf5', 'a')
     tree(f)
 
 
