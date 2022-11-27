@@ -2,6 +2,8 @@
 ### Requirements
 * h5py
 * python 3.10
+* h5py
+* opencv-python
 
 ### Files
 * `files/TempData.hdf5` - default contiguous storage
