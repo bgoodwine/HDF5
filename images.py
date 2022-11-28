@@ -37,7 +37,8 @@ def readjpg(path, rgb=True):
     print(f'Image dimensions: {img.shape}')
     return img, jpgsize
 
-def main():
+
+def imagetest():
     chunks = [#(128, 64, 1), 
               (128, 128, 1),
               (128, 128, 2),
@@ -83,6 +84,10 @@ def main():
     for size, chunk in zip(shuffled_sizes, chunks):
         #print(f'\t{chunk}: {size}')
         print(size)
+
+
+def main():
+    imagetest()
 
 
 if __name__ == '__main__':

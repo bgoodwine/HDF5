@@ -4,6 +4,9 @@
 * python 3.10
 * h5py
 * opencv-python
+* imageio
+* pyav
+
 
 ### Files
 * `files/TempData.hdf5` - default contiguous storage
