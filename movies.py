@@ -6,9 +6,13 @@ import imageio.v2 as iio
 import h5py
 
 # constants
-MOV_VIDEO = 'files/helmholtz.mov'
-MP4_VIDEO = 'files/helmholtz.mp4'
-HDF_VIDEO = 'files/helmholtz.hdf5'
+#MOV_VIDEO = 'files/movies/helmholtz.mov'
+#MP4_VIDEO = 'files/movies/helmholtz.mp4'
+#HDF_VIDEO = 'files/movies/helmholtz.hdf5'
+
+MP4_VIDEO = 'files/movies/mnms.mp4'
+MOV_VIDEO = 'files/movies/mnms.mov'
+HDF_VIDEO = 'files/movies/mnms.hdf5'
 
 # saved code: display each frame with iio
     #for frame in mov_frames:
@@ -18,31 +22,23 @@ HDF_VIDEO = 'files/helmholtz.hdf5'
     #    dset = f.create_dataset('helmholtz', data=mp4_frames, chunks=True, compression='gzip', shuffle=True)
     #    hdf_shape = str(dset.chunks)
 
+# display frames in iio imread frames
+def disp(frames):
+    for fram in frames:
+        print(frame.shape, frame.dtype)
 
-# write numpy array d to hdf5 file path
-def write_contiguous(path, d):
+# write dataset frames to hdf5 file in path
+def write_movie_ndarray(path, frames):
     with h5py.File(path, 'w') as f:
-        dset = f.create_dataset('image', data=d)
-        print(f'Created dataset: {dset.name}')
-        print(f'Chunks: {dset.chunks}')
-
-    hdfsize = os.path.getsize(path)
-    return hdfsize
-
-# write numpy array d to hdf5 file path
-def write_chunked(path, d, chunk, comp=None, shuffle=False):
-    with h5py.File(path, 'w') as f:
-        dset = f.create_dataset('image', data=d, chunks=chunk, compression=comp, shuffle=shuffle)
-        print(f'Created dataset: {dset.name}')
-        print(f'Chunks: {dset.chunks}')
-
-    hdfsize = os.path.getsize(path)
-    return hdfsize
+        dset = f.create_dataset('video', data=frames, chunks=True, compression='gzip', shuffle=True)
 
 def main():
     # read in mp4, mov, and hdf data
     mp4_frames = iio.imread(MP4_VIDEO, format='pyav')
     mov_frames = iio.imread(MOV_VIDEO, format='pyav')
+    if not os.path.exists(HDF_VIDEO):
+        print(f'{HDF_VIDEO} does not exist- writing data from {MP4_VIDEO}...')
+        write_movie_ndarray(HDF_VIDEO, mp4_frames)
     hdf_file   = h5py.File(HDF_VIDEO, 'r')
 
     # convert hdf5 data to np ndarray, gather metadata
@@ -79,10 +75,10 @@ def main():
     sizes.sort(reverse=True) # take 'original' file to be largest file
     
     # display results
-    print(f'{"Path":<20}: {"(x, y, z)":<17}   {"size (b)":>8}   {"chunks":<10}')
-    print(f'{MP4_VIDEO:<20}: {mp4_shape:<17}   {mp4_size:>8}')
-    print(f'{MOV_VIDEO:<20}: {mov_shape:<17}   {mov_size:>8}')
-    print(f'{HDF_VIDEO:<20}: {hdf_shape:<17}   {hdf_size:>8}   {hdf_chunks:<10}')
+    print(f'{"Path":<25}: {"(x, y, z)":<17}   {"size (b)":>8}   {"chunks":<10}')
+    print(f'{MP4_VIDEO:<25}: {mp4_shape:<17}   {mp4_size:>8}')
+    print(f'{MOV_VIDEO:<25}: {mov_shape:<17}   {mov_size:>8}')
+    print(f'{HDF_VIDEO:<25}: {hdf_shape:<17}   {hdf_size:>8}   {hdf_chunks:<10}')
     print('')
     print(f'{sizes[0]} : {sizes[1]:<10} = {sizes[0]/sizes[1]}')
     print(f'{sizes[0]} : {sizes[2]:<10} = {sizes[0]/sizes[2]}')
