@@ -32,27 +32,40 @@ def write_chunked(path, d, chunk, comp=None, shuffle=False):
     return hdfsize
 
 def main():
-    print('Path: (number of frames, number of pixels, number of values) - size of file')
 
     mp4_frames = iio.imread(MP4_VIDEO, format='pyav')
     mov_frames = iio.imread(MOV_VIDEO, format='pyav')
+    hdf_frames = h5py.File(HDF_VIDEO, 'r')
+
+    shapes = []
+    chunks = []
+    for dname in hdf_frames.keys():
+        dset = hdf_frames[dname]
+        shapes.append(str(dset.shape))
+        chunks.append(str(dset.chunks))
+
+    hdf_shape = ' '.join(shapes)
+    hdf_chunks = ' '.join(chunks)
+
     
     mp4_shape = str(mp4_frames.shape)
     mov_shape = str(mov_frames.shape)
 
     #for frame in mov_frames:
     #    print(frame.shape, frame.dtype)
-    with h5py.File(HDF_VIDEO, 'w') as f:
-        dset = f.create_dataset('helmholtz', data=mp4_frames, chunks=True, compression='gzip', shuffle=True)
-        hdf_shape = str(dset.chunks)
+    
+    #with h5py.File(HDF_VIDEO, 'w') as f:
+    #    dset = f.create_dataset('helmholtz', data=mp4_frames, chunks=True, compression='gzip', shuffle=True)
+    #    hdf_shape = str(dset.chunks)
 
     mp4_size = os.path.getsize(MP4_VIDEO)
     mov_size = os.path.getsize(MOV_VIDEO)
     hdf_size = os.path.getsize(HDF_VIDEO)
 
+    print(f'{"Path":<20}: {"(x, y, z)":<17} - {"size (b)":>8} - {"chunks":<10}')
     print(f'{MP4_VIDEO:<20}: {mp4_shape:<17} - {mp4_size:>8}')
     print(f'{MOV_VIDEO:<20}: {mov_shape:<17} - {mov_size:>8}')
-    print(f'{HDF_VIDEO:<20}: {hdf_shape:<17} - {hdf_size:>8}')
+    print(f'{HDF_VIDEO:<20}: {hdf_shape:<17} - {hdf_size:>8} - {hdf_chunks:<10}')
 
 
 if __name__ == '__main__':
