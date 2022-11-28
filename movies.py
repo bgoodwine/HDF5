@@ -2,11 +2,12 @@
 
 import os
 import numpy as np
-import imageio.v2 as iio
+import imageio.v3 as iio
 import h5py
 
 # constants
-VIDEOS = ['files/movies/helmholtz.mov', 'files/movies/mnms.mp4']
+#VIDEOS = ['files/movies/helmholtz.mov', 'files/movies/mnms.mp4']
+VIDEOS = ['files/movies/mnms.mp4']
 FORMATS = ['mp4', 'mov', 'hdf5']
 
 #MOV_VIDEO = 'files/movies/helmholtz.mov'
@@ -29,8 +30,8 @@ def write_movie_ndarray(path, frames):
 
 def compare_formats(mp4_video, mov_video, hdf_video):
     # read in mp4, mov, and hdf data
-    mp4_frames = iio.imread(mp4_video, format='pyav')
-    mov_frames = iio.imread(mov_video, format='pyav')
+    mp4_frames = iio.imread(mp4_video, plugin='pyav')
+    mov_frames = iio.imread(mov_video, plugin='pyav')
     if not os.path.exists(hdf_video):
         print(f'{HDF_VIDEO} does not exist- writing data from {MP4_VIDEO}...')
         write_movie_ndarray(hdf_video, mp4_frames)
@@ -88,12 +89,16 @@ def main():
             if not os.path.exists(path+fm):
                 print(f'Missing file: {path+fm}, writing from {video}...')
                 if not video.endswith('hdf5'):
-                    frames = iio.imread(video, format='pyav')
-                    metadata = iio.immeta(video)
+                    frames = iio.imread(video, plugin='pyav')
+                    #frames = iio.imread(video, format='pyav')
+                    print(frames[0].shape)
+                    metadata = iio.immeta(video, plugin='pyav')
                     if fm == 'hdf5':
                         write_movie_ndarray(path+fm, frames) 
-                    else:
-                        iio.imwrite(path+fm, frames, fps=metadata['fps'])
+                    elif fm == 'mp4':
+                        iio.imwrite(path+fm, frames, codec_name='mpeg4', fps=metadata['fps'])
+                    elif fm == 'mov':
+                        iio.imwrite(path+fm, frames, codec='mov', plugin='pyav', fps=metadata['fps'])
                 else:
                     print(f'ERROR: cannot start w/ original file {video}')
 
