@@ -6,21 +6,16 @@ import imageio.v2 as iio
 import h5py
 
 # constants
+VIDEOS = ['files/movies/helmholtz.mov', 'files/movies/mnms.mp4']
+FORMATS = ['mp4', 'mov', 'hdf5']
+
 #MOV_VIDEO = 'files/movies/helmholtz.mov'
 #MP4_VIDEO = 'files/movies/helmholtz.mp4'
 #HDF_VIDEO = 'files/movies/helmholtz.hdf5'
+#MP4_VIDEO = 'files/movies/mnms.mp4'
+#MOV_VIDEO = 'files/movies/mnms.mov'
+#HDF_VIDEO = 'files/movies/mnms.hdf5'
 
-MP4_VIDEO = 'files/movies/mnms.mp4'
-MOV_VIDEO = 'files/movies/mnms.mov'
-HDF_VIDEO = 'files/movies/mnms.hdf5'
-
-# saved code: display each frame with iio
-    #for frame in mov_frames:
-    #    print(frame.shape, frame.dtype)
-# saved code: write movie data to hdf5 w/ default chunks
-    #with h5py.File(HDF_VIDEO, 'w') as f:
-    #    dset = f.create_dataset('helmholtz', data=mp4_frames, chunks=True, compression='gzip', shuffle=True)
-    #    hdf_shape = str(dset.chunks)
 
 # display frames in iio imread frames
 def disp(frames):
@@ -32,14 +27,14 @@ def write_movie_ndarray(path, frames):
     with h5py.File(path, 'w') as f:
         dset = f.create_dataset('video', data=frames, chunks=True, compression='gzip', shuffle=True)
 
-def main():
+def compare_formats(mp4_video, mov_video, hdf_video):
     # read in mp4, mov, and hdf data
-    mp4_frames = iio.imread(MP4_VIDEO, format='pyav')
-    mov_frames = iio.imread(MOV_VIDEO, format='pyav')
-    if not os.path.exists(HDF_VIDEO):
+    mp4_frames = iio.imread(mp4_video, format='pyav')
+    mov_frames = iio.imread(mov_video, format='pyav')
+    if not os.path.exists(hdf_video):
         print(f'{HDF_VIDEO} does not exist- writing data from {MP4_VIDEO}...')
-        write_movie_ndarray(HDF_VIDEO, mp4_frames)
-    hdf_file   = h5py.File(HDF_VIDEO, 'r')
+        write_movie_ndarray(hdf_video, mp4_frames)
+    hdf_file   = h5py.File(hdf_video, 'r')
 
     # convert hdf5 data to np ndarray, gather metadata
     shapes = []
@@ -66,9 +61,9 @@ def main():
         print('MOV frames do not match HDF frames')
 
     # collect size data
-    mp4_size = os.path.getsize(MP4_VIDEO)
-    mov_size = os.path.getsize(MOV_VIDEO)
-    hdf_size = os.path.getsize(HDF_VIDEO)
+    mp4_size = os.path.getsize(mp4_video)
+    mov_size = os.path.getsize(mov_video)
+    hdf_size = os.path.getsize(hdf_video)
 
     # calculate compression ratio: CR = original file size / compressed file size
     sizes = [mp4_size, mov_size, hdf_size]
@@ -76,12 +71,36 @@ def main():
     
     # display results
     print(f'{"Path":<25}: {"(x, y, z)":<17}   {"size (b)":>8}   {"chunks":<10}')
-    print(f'{MP4_VIDEO:<25}: {mp4_shape:<17}   {mp4_size:>8}')
-    print(f'{MOV_VIDEO:<25}: {mov_shape:<17}   {mov_size:>8}')
-    print(f'{HDF_VIDEO:<25}: {hdf_shape:<17}   {hdf_size:>8}   {hdf_chunks:<10}')
+    print(f'{mp4_video:<25}: {mp4_shape:<17}   {mp4_size:>8}')
+    print(f'{mov_video:<25}: {mov_shape:<17}   {mov_size:>8}')
+    print(f'{hdf_video:<25}: {hdf_shape:<17}   {hdf_size:>8}   {hdf_chunks:<10}')
     print('')
     print(f'{sizes[0]} : {sizes[1]:<10} = {sizes[0]/sizes[1]}')
     print(f'{sizes[0]} : {sizes[2]:<10} = {sizes[0]/sizes[2]}')
+
+
+def main():
+    for video in VIDEOS:
+        print(f'Original video: {video}')
+        # check for existing conversions of original video
+        path = video[:-3]
+        for fm in FORMATS:
+            if not os.path.exists(path+fm):
+                print(f'Missing file: {path+fm}, writing from {video}...')
+                if not video.endswith('hdf5'):
+                    frames = iio.imread(video, format='pyav')
+                    metadata = iio.immeta(video)
+                    if fm == 'hdf5':
+                        write_movie_ndarray(path+fm, frames) 
+                    else:
+                        iio.imwrite(path+fm, frames, fps=metadata['fps'])
+                else:
+                    print(f'ERROR: cannot start w/ original file {video}')
+
+        compare_formats(path+'mp4', path+'mov', path+'hdf5')
+
+
+
 
 
 if __name__ == '__main__':
