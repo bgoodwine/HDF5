@@ -1,21 +1,51 @@
 #!/usr/local/bin/python3.10
 
 import time
+import sys
+import os
 import h5py
 import numpy as np
+import pprint as pp
+
+FILE = 'files/movies/helmholtz.hdf5'
 
 # traverse hdf5 file and print structure
-def tree(f, prefix='  '):
+def tree(f, prefix='  ', structure={}, group='/', verbose=True):
     if f.name == '/':
-        print(f.name)
+        if verbose:
+            print(f.name)
+        structure[f.name] = {}
+        structure[f.name]['groups'] = []
+        structure[f.name]['datasets'] = []
+        structure[f.name]['meta'] = {}
+
     for dataset in f.keys():
         n = f.get(dataset)
+
+        # copy over attribute metadata
+        for at in n.attrs.keys():
+            if verbose:
+                print(f'{prefix}\t{at}: {n.attrs[at]}')
+            structure[group]['meta'][at] = n.attrs[at]
+
         if isinstance(n, h5py.Group):
-            print(prefix + n.name)
-            tree(n, prefix=prefix+'  ')
+            if verbose:
+                print(prefix + n.name)
+            structure[group]['groups'].append(n.name)
+            # create group dictionary entry in structure
+            structure[n.name] = {}
+            structure[n.name]['groups'] = []
+            structure[n.name]['datasets'] = []
+            structure[n.name]['meta'] = {}
+            tree(n, prefix=prefix+'  ', structure=structure, group=n.name)
         else:
-            print(prefix + dataset)
-            print(n[()])
+            if verbose:
+                print(prefix + dataset, end='')
+                print(n[()])
+                print(f'{prefix}\ttype: {n.dtype} size: {n.size} shape: {n.shape} chunked: {n.chunks}')
+            structure[group]['datasets'].append(dataset)
+
+    return structure
 
 # walk hdf5 file and yield datasets
 def walk(f):
@@ -90,10 +120,15 @@ def write_rand(file_name):
     
 
 def main():
-    filename = 'files/TempData.hdf5'
-    f = h5py.File(filename, 'a')
-    readtime = testread(f)
-    print(f'Time to read {filename}: {readtime}')
+    if not os.path.exists(FILE):
+        print(f'ERROR: {FILE} does not exist')
+        sys.exit(1)
+
+    f = h5py.File(FILE, 'a')
+    structure = tree(f)
+    pp.pprint(structure)
+    #readtime = testread(f)
+    #print(f'Time to read {FILE}: {readtime}')
     repack(f, 1, 1)
 
 

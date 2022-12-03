@@ -31,7 +31,7 @@ def write_movie_ndarray(path, reader, meta):
     with h5py.File(path, 'w') as f:
         g = f.create_group('video_frames')
         # copy over metadata
-        g.update(meta.copy())
+        g.attrs.update(meta.copy())
         print('Copied over metadata to g.attrs:')
         pp.pprint(g.attrs)
         
