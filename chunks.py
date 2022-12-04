@@ -5,9 +5,10 @@ import sys
 import os
 import h5py
 import numpy as np
+import imageio as iio
 import pprint as pp
 
-FILE = 'files/movies/helmholtz.hdf5'
+FILE  = 'files/movies/katrina.MOV'
 
 # traverse hdf5 file and print structure
 def tree(f, prefix='  ', structure={}, group='/', verbose=True):
@@ -56,54 +57,103 @@ def walk(f):
         else:
             yield(n)
 
-# traverse hdf5 file and access all data (chunk cache irrelevant)
-def dump(f):
-    for dataset in f.keys():
-        n = f.get(dataset)
-        if isinstance(n, h5py.Group):
-            dump(n)
+# write dataset frames from source in chunks to hdf5 destination
+def write_chunked(source):
+    # hdf5 path -> replace format extension with hdf5
+    hdf5_path = source[:-3]+'hdf5'
+    if os.path.exists(hdf5_path):
+        print(f'File: {hdf5_path} already exists')
+        return None
+
+    # get metadata on video
+    reader = iio.get_reader(source)
+    meta = reader.get_meta_data()
+    fps = int(meta['fps'])
+    print(f'Metadata for {source}')
+    pp.pprint(meta)
+    print('')
+
+    # convert video into np array of frames
+    count = 1
+    frames_list = []
+    for im in reader:
+        frames_list.append(im)
+        '''
+        if count == 1:
+            # create np array with shape (num_frames, height, width, channel)
+            # expand on axis 0 so frames will be stacked first element of the shape
+            frames = np.expand_dims(im, axis=0)
+            print(f'Image shape:  {im.shape}')
+            print(f'Frames shape: {frames.shape}')
         else:
-            n = n[()]
+            # stack onto existing frames np array
+            frames = np.stack(axis=0)
+            print(f'Image shape:  {im.shape}')
+            print(f'Frames shape: {frames.shape}')
+        '''
+        count += 1
+        #print(f'Frame shape: {im.shape}')
+        print(f'Reading frame: {count}', end='\r')
 
-# returns time in seconds to read entire dataset
-def testread(f):
-    start = time.time()
-    dump(f)
-    end = time.time()
-    return end-start
+    frames = np.stack(frames_list, axis=0)
+    print(f'Frames shape: {frames.shape}')
+    return
 
+'''
+    #with h5py.File(hdf5_path, 'w') as f:
 
-def repack(f, n1, n2):
-    # TODO: loop through all datasets, rechunk
-    gen = walk(f)
-    while True:
-        try:
-            dataset = next(gen)
-            print(dataset.name)
-        except StopIteration:
-            print('Iteration stopped.')
-            break
+    with h5py.File(path, 'w') as f:
+        g = f.create_group('video_frames')
+        # copy over metadata
+        g.attrs.update(meta.copy())
+        print('Copied over metadata to g.attrs:')
+        pp.pprint(g.attrs)
+        
+        count = 1
+        print(reader.get_length())
+        frames = np.empty(0)
+        for im in reader:
+            frames = np.append(frames, im)
+            if count == 50:
+                print(f'Adding first 50 frames...           ')
+                dset = g.create_dataset('video', data=frames, chunks=True, compression='gzip', shuffle=True, maxshape=(None,))
+                print('fdset shape: ', end='')
+                print(dset.shape)
+                frames = np.empty(0)
+            elif count%50 == 0:
+                print(f'Adding next 50 frames...            ')
+                print(f'frames.shape = ', end='')
+                print(frames.shape)
+                dset.resize(dset.shape[0]+frames.shape[0], axis=0)
+                dset[-frames.shape[0]:] = frames
+            print(f'Copying frame {count} shape ', end='\r')
+            count += 1
 
-# traverse hdf5 file and convert to dictionary
-def file2dict(f, d={}, prefix=[]):
-    if f.name == '/':
-        d = {}
-    else:
-        for p in prefix:
-            d = d[p]
+        # add the last couple frames
+        if len(frames) > 0:
+            dset.resize(dset.shape[0]+frames.shape[0], axis=0)
+            dset[-frames.shape[0]:] = frames
+            print(f'Added additional {len(frames)} frames')
+                
 
-    for dataset in f.keys():
-        n = f.get(dataset)
-        if isinstance(n, h5py.Group):
-            d[n.name] = {}
-            file2dict(n, d=d, prefix=[n.name])
-        else:
-            d[n.name] = n
+        print('Done.\n')
 
-    return d
+'''
+
 
 # write random data to an hdf5 file
 def write_rand(file_name):
+    # get metadata on video
+    reader = iio.get_reader(video)
+    meta = reader.get_meta_data()
+    print(meta)
+    fps = int(meta['fps'])
+
+    for im in reader:
+        
+        writer.append_data(im[:,:,:])
+    writer.close()
+
     d1 = np.random.random(size = (100, 20))
     d2 = np.random.random(size = (100, 200))
     d3 = np.random.random(size = (100, 2))
@@ -124,12 +174,14 @@ def main():
         print(f'ERROR: {FILE} does not exist')
         sys.exit(1)
 
-    f = h5py.File(FILE, 'a')
-    structure = tree(f)
-    pp.pprint(structure)
+    write_chunked(FILE)
+
+    #f = h5py.File(FILE, 'a')
+    #structure = tree(f)
+    #pp.pprint(structure)
     #readtime = testread(f)
     #print(f'Time to read {FILE}: {readtime}')
-    repack(f, 1, 1)
+    #f.close()
 
 
 if __name__ == '__main__':
