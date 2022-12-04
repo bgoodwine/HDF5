@@ -48,14 +48,6 @@ def tree(f, prefix='  ', structure={}, group='/', verbose=True):
 
     return structure
 
-# walk hdf5 file and yield datasets
-def walk(f):
-    for dataset in f.keys():
-        n = f.get(dataset)
-        if isinstance(n, h5py.Group):
-            walk(n)
-        else:
-            yield(n)
 
 # write dataset frames from source in chunks to hdf5 destination
 def write_chunked(source):
@@ -68,106 +60,33 @@ def write_chunked(source):
     # get metadata on video
     reader = iio.get_reader(source)
     meta = reader.get_meta_data()
-    fps = int(meta['fps'])
-    print(f'Metadata for {source}')
-    pp.pprint(meta)
-    print('')
 
-    # convert video into np array of frames
+    # convert video into list of frames
     count = 1
     frames_list = []
     for im in reader:
-        frames_list.append(im)
-        '''
         if count == 1:
-            # create np array with shape (num_frames, height, width, channel)
-            # expand on axis 0 so frames will be stacked first element of the shape
-            frames = np.expand_dims(im, axis=0)
-            print(f'Image shape:  {im.shape}')
-            print(f'Frames shape: {frames.shape}')
-        else:
-            # stack onto existing frames np array
-            frames = np.stack(axis=0)
-            print(f'Image shape:  {im.shape}')
-            print(f'Frames shape: {frames.shape}')
-        '''
+            print(f'Frame shape:  {im.shape}')
+        frames_list.append(im)
         count += 1
-        #print(f'Frame shape: {im.shape}')
         print(f'Reading frame: {count}', end='\r')
 
+    # stack frames onto an np array on axis 0 for (num_frames,  
     frames = np.stack(frames_list, axis=0)
-    print(f'Frames shape: {frames.shape}')
-    return
+    print(f'Frames shape: {frames.shape}\n')
 
-'''
-    #with h5py.File(hdf5_path, 'w') as f:
-
-    with h5py.File(path, 'w') as f:
-        g = f.create_group('video_frames')
-        # copy over metadata
-        g.attrs.update(meta.copy())
-        print('Copied over metadata to g.attrs:')
-        pp.pprint(g.attrs)
-        
-        count = 1
-        print(reader.get_length())
-        frames = np.empty(0)
-        for im in reader:
-            frames = np.append(frames, im)
-            if count == 50:
-                print(f'Adding first 50 frames...           ')
-                dset = g.create_dataset('video', data=frames, chunks=True, compression='gzip', shuffle=True, maxshape=(None,))
-                print('fdset shape: ', end='')
-                print(dset.shape)
-                frames = np.empty(0)
-            elif count%50 == 0:
-                print(f'Adding next 50 frames...            ')
-                print(f'frames.shape = ', end='')
-                print(frames.shape)
-                dset.resize(dset.shape[0]+frames.shape[0], axis=0)
-                dset[-frames.shape[0]:] = frames
-            print(f'Copying frame {count} shape ', end='\r')
-            count += 1
-
-        # add the last couple frames
-        if len(frames) > 0:
-            dset.resize(dset.shape[0]+frames.shape[0], axis=0)
-            dset[-frames.shape[0]:] = frames
-            print(f'Added additional {len(frames)} frames')
-                
-
-        print('Done.\n')
-
-'''
-
-
-# write random data to an hdf5 file
-def write_rand(file_name):
-    # get metadata on video
-    reader = iio.get_reader(video)
-    meta = reader.get_meta_data()
-    print(meta)
-    fps = int(meta['fps'])
-
-    for im in reader:
-        
-        writer.append_data(im[:,:,:])
-    writer.close()
-
-    d1 = np.random.random(size = (100, 20))
-    d2 = np.random.random(size = (100, 200))
-    d3 = np.random.random(size = (100, 2))
-
-    with h5py.File(file_name, 'w') as f:
-        dset = f.create_dataset('data1', data=d1)
+    with h5py.File(hdf5_path, 'w') as f:
+        # write mov frames to hdf5 as a dataset
+        dset = f.create_dataset('video_frames', data=frames)
+        dset.attrs.update(meta.copy())
+        dset.attrs['nframes'] = frames.shape[0]
+        dset.attrs['original_format'] = source[-3:]
+        dset.attrs['source_file'] = source
         print(f'Created dataset: {dset.name}')
-        dset2 = f.create_dataset('data2', data=d2)
-        print(f'Created dataset: {dset2.name}')
-        grp = f.create_group('subgroup')
-        print(f'Created group: {grp.name}')
-        dset3 = grp.create_dataset('data3', data=d3)
-        print(f'Created dataset: {dset3.name}')
-    
+        print('')
+
+    return hdf5_path
+
 
 def main():
     if not os.path.exists(FILE):
