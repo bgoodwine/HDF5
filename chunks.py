@@ -50,12 +50,17 @@ def tree(f, prefix='  ', structure={}, group='/', verbose=True):
 
 
 # write dataset frames from source in chunks to hdf5 destination
-def write_chunked(source):
+def write_chunked(source, chunks=None, overwrite=False):
     # hdf5 path -> replace format extension with hdf5
-    hdf5_path = source[:-3]+'hdf5'
-    if os.path.exists(hdf5_path):
-        print(f'File: {hdf5_path} already exists')
-        return None
+    if chunks is None:
+        hdf5_path = source[:-3]+'hdf5'
+    else:
+        hdf5_path = source[:-3]+str(chunks)+'hdf5'
+    
+    if not overwrite:
+        if os.path.exists(hdf5_path):
+            print(f'File: {hdf5_path} already exists')
+            return None
 
     # get metadata on video
     reader = iio.get_reader(source)
@@ -71,7 +76,7 @@ def write_chunked(source):
         count += 1
         print(f'Reading frame: {count}', end='\r')
 
-    # stack frames onto an np array on axis 0 for (num_frames,  
+    # stack frames onto nparray with shape (num_frames, height, width, channel) 
     frames = np.stack(frames_list, axis=0)
     print(f'Frames shape: {frames.shape}\n')
 
@@ -93,7 +98,7 @@ def main():
         print(f'ERROR: {FILE} does not exist')
         sys.exit(1)
 
-    write_chunked(FILE)
+    write_chunked(FILE, overwrite=True)
 
     #f = h5py.File(FILE, 'a')
     #structure = tree(f)
