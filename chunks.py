@@ -59,6 +59,17 @@ def test_io(path, dset_name='video_frames'):
             print(f'Multi-frame (3) write time: {end-start}')
             f[dset_name][25:27,0:1919,0:1079,0:2] = frame
 
+            # test multi-frame read/write
+            start = time.time()
+            frame = f[dset_name][0:27,0:1919,0:1079,0:2]
+            end = time.time()
+            print(f'Whole file read time: {end-start}')
+            start = time.time()
+            f[dset_name][0:27,0:1919,0:1079,0:2] = np.empty((27,1919,1079,2))
+            end = time.time()
+            print(f'Whole file write time: {end-start}')
+            f[dset_name][0:27,0:1919,0:1079,0:2] = frame
+
     print('')
 
 ''' 
