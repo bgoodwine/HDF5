@@ -10,44 +10,6 @@ import pprint as pp
 
 FILE  = 'files/movies/katrina.mov'
 
-# traverse hdf5 file and print structure
-def tree(f, prefix='  ', structure={}, group='/', verbose=True):
-    if f.name == '/':
-        if verbose:
-            print(f.name)
-        structure[f.name] = {}
-        structure[f.name]['groups'] = []
-        structure[f.name]['datasets'] = []
-        structure[f.name]['meta'] = {}
-
-    for dataset in f.keys():
-        n = f.get(dataset)
-
-        # copy over attribute metadata
-        for at in n.attrs.keys():
-            if verbose:
-                print(f'{prefix}\t{at}: {n.attrs[at]}')
-            structure[group]['meta'][at] = n.attrs[at]
-
-        if isinstance(n, h5py.Group):
-            if verbose:
-                print(prefix + n.name)
-            structure[group]['groups'].append(n.name)
-            # create group dictionary entry in structure
-            structure[n.name] = {}
-            structure[n.name]['groups'] = []
-            structure[n.name]['datasets'] = []
-            structure[n.name]['meta'] = {}
-            tree(n, prefix=prefix+'  ', structure=structure, group=n.name)
-        else:
-            if verbose:
-                print(prefix + dataset, end='')
-                print(n[()])
-                print(f'{prefix}\ttype: {n.dtype} size: {n.size} shape: {n.shape} chunked: {n.chunks}')
-            structure[group]['datasets'].append(dataset)
-
-    return structure
-
 
 # convert frames to nd array for hdf5 writing
 def get_frames(reader, verbose=False):
@@ -72,7 +34,13 @@ def get_frames(reader, verbose=False):
 
 # write dataset frames from source without chunks to hdf5 destination
 def write_contiguous(source, overwrite=False, verbose=False):
-    hdf5_path = source[:-4]+'not_chunked'+'.hdf5'
+    hdf5_path = source[:-4]+'_not_chunked_uncompressed'+'.hdf5'
+    if not overwrite:
+        if os.path.exists(hdf5_path):
+            print(f'File: {hdf5_path} already exists')
+            print(f'\tFile size: {os.path.getsize(hdf5_path)}')
+            print('')
+            return None
 
     # get metadata on video
     reader = iio.get_reader(source)
@@ -97,21 +65,27 @@ def write_contiguous(source, overwrite=False, verbose=False):
 
 # write dataset frames from source in chunks to hdf5 destination
 def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression='gzip', verbose=False):
-    # hdf5 path -> replace format extension with hdf5
+    # create path name based on prefix that identifies chunking method
     if chunks is None:
-        hdf5_path = source[:-4]+'_default'+'.hdf5'
+        hdf5_path = source[:-4]+'_default'
         chunks=True
     else:
-        if prefix is None:
-            hdf5_path = source[:-4]+str(chunks)+'.hdf5'
+        if prefix is None or prefix == '':
+            hdf5_path = source[:-4]+str(chunks)
         else:
             prefix = '_'+prefix
-            hdf5_path = source[:-4]+prefix+'.hdf5'
-
+            hdf5_path = source[:-4]+prefix
+    # add compression and hdf5 extention
+    if compression is None:
+        hdf5_path += '_uncompressed' + '.hdf5'
+    else:
+        hdf5_path += '_' + str(compression) + '.hdf5'
     
     if not overwrite:
         if os.path.exists(hdf5_path):
             print(f'File: {hdf5_path} already exists')
+            print(f'\tFile size: {os.path.getsize(hdf5_path)}')
+            print('')
             return None
 
     # get video frames & metadata
@@ -122,7 +96,10 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
     print(f'Created file: {hdf5_path}')
     with h5py.File(hdf5_path, 'w') as f:
         # write mov frames to hdf5 as a dataset
-        dset = f.create_dataset('video_frames', data=frames, chunks=chunks, compression=compression)
+        if compression is None:
+            dset = f.create_dataset('video_frames', data=frames, chunks=chunks)
+        else:
+            dset = f.create_dataset('video_frames', data=frames, chunks=chunks, compression=compression)
         dset.attrs.update(meta.copy())
         dset.attrs['nframes'] = frames.shape[0]
         dset.attrs['original_format'] = source[-3:]
@@ -138,21 +115,32 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
 
 
 def main():
+    # command line argument: -o to overwrite
+    overwrite = False
+    compression = 'gzip'
+
+    if len(sys.argv) > 1:
+        for i, arg in enumerate(sys.argv):
+            if arg == '-o':
+                overwrite = True
+            elif arg == '-c':
+                compression = str(sys.argv[i+1])
+                if compression == 'None':
+                    compression = None
+            elif arg == '-h':
+                print('./chunks.py [-o] [-c compression]')
+                print('\t -o - overwrite current files')
+                print('\t -c - specify compression method (default: gzip)')
+
     if not os.path.exists(FILE):
         print(f'ERROR: {FILE} does not exist')
         sys.exit(1)
 
-    write_contiguous(FILE, overwrite=True)
-    write_chunked(FILE, overwrite=True) # write default chunked
-    write_chunked(FILE, overwrite=True, chunks=(28,1920,1080,3), prefix='chunked_whole')
-    write_chunked(FILE, overwrite=True, chunks=(1,1920,1080,3), prefix='chunked_by_frame')
-
-    #f = h5py.File(FILE, 'a')
-    #structure = tree(f)
-    #pp.pprint(structure)
-    #readtime = testread(f)
-    #print(f'Time to read {FILE}: {readtime}')
-    #f.close()
+    write_contiguous(FILE, overwrite=overwrite)
+    write_chunked(FILE, overwrite=overwrite, compression=compression) # write default chunked
+    write_chunked(FILE, overwrite=overwrite, chunks=(28,1920,1080,3), compression=compression, prefix='chunked_whole')
+    write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,3), compression=compression, prefix='chunked_by_frame')
+    write_chunked(FILE, overwrite=True, chunks=(1,1920,1080,1), compression=compression, prefix='chunked_by_frame_color')
 
 
 if __name__ == '__main__':
