@@ -13,62 +13,67 @@ FILE  = 'files/movies/katrina.mov'
 def test_io(path, dset_name='video_frames'):
     with h5py.File(path, 'r+') as f:
         print(f'Opened file: {path}')
-        if dset_name in f.keys():
-            # display info on file
-            print(f'Found dataset: {dset_name}')
-            #dset = f[dset_name] 
-            #print(f'Found dataset: {dset.name}')
-            #print(f'\tShape:       {dset.shape}')
-            #print(f'\tChunks:      {dset.chunks}')
-            #print(f'\tCompression: {dset.compression}')
+        if dset_name not in f.keys():
+            return None
+        else:
+            dset = f[dset_name] 
+            print(f'Found dataset: {dset.name}')
+            print(f'\tShape:       {dset.shape}')
+            print(f'\tChunks:      {dset.chunks}')
+            print(f'\tCompression: {dset.compression}')
 
-            # NOTE: using the notation f[dset][slice] instead of dset[slice] will let the
-            # dset go "out of scope" (https://github.com/h5py/h5py/issues/1960)
-            # and thus caching will NOT occur, which is what we want for this test
+    # opening/closing to ensure data is flushed to the file and not just stored
+    # test read/write of the 0x0 pixel of the last frame for chanel 0
+    f = h5py.File(path, 'r+', rdcc_nbytes=0)
+    start = time.time()
+    val = f[dset_name][27,0,0,0]
+    end = time.time()
+    f.close()
+    print(f'Pixel read time: {end-start}')
+    f = h5py.File(path, 'r+', rdcc_nbytes=0)
+    start = time.time()
+    f[dset_name][27,0,0,0] = 0
+    end = time.time()
+    f.close()
+    print(f'Pixel write time:  {end-start}')
+    f = h5py.File(path, 'r+')
+    f[dset_name][27,0,0,0] = val
+    f.close()
 
-            # test read/write of the 0x0 pixel of the last frame for chanel 0
-            start = time.time()
-            val = f[dset_name][27,0,0,0]
-            end = time.time()
-            print(f'Pixel read time: {end-start}')
-            start = time.time()
-            f[dset_name][27,0,0,0] = 0
-            end = time.time()
-            print(f'Pixel write time:  {end-start}')
-            f[dset_name][27,0,0,0] = val
+    # test read/write of the last frame
+    f = h5py.File(path, 'r+', rdcc_nbytes=0)
+    start = time.time()
+    frame = f[dset_name][27,0:1919,0:1079,0:2]
+    end = time.time()
+    f.close()
+    print(f'Frame read time: {end-start}')
+    f = h5py.File(path, 'r+', rdcc_nbytes=0)
+    start = time.time()
+    f[dset_name][27,0:1919,0:1079,0:2] = np.empty((1919,1079,2))
+    end = time.time()
+    f.close()
+    print(f'Frame write time: {end-start}')
+    f = h5py.File(path, 'r+')
+    f[dset_name][27,0:1919,0:1079,0:2] = frame
+    f.close()
 
-            # test read/write of the last frame
-            start = time.time()
-            frame = f[dset_name][27,0:1919,0:1079,0:2]
-            end = time.time()
-            print(f'Frame read time: {end-start}')
-            start = time.time()
-            f[dset_name][27,0:1919,0:1079,0:2] = np.empty((1919,1079,2))
-            end = time.time()
-            print(f'Frame write time: {end-start}')
-            f[dset_name][27,0:1919,0:1079,0:2] = frame
-
-            # test multi-frame read/write
-            start = time.time()
-            frame = f[dset_name][25:27,0:1919,0:1079,0:2]
-            end = time.time()
-            print(f'Multi-frame (3) read time: {end-start}')
-            start = time.time()
-            f[dset_name][25:27,0:1919,0:1079,0:2] = np.empty((2,1919,1079,2))
-            end = time.time()
-            print(f'Multi-frame (3) write time: {end-start}')
-            f[dset_name][25:27,0:1919,0:1079,0:2] = frame
-
-            # test multi-frame read/write
-            start = time.time()
-            frame = f[dset_name][0:27,0:1919,0:1079,0:2]
-            end = time.time()
-            print(f'Whole file read time: {end-start}')
-            start = time.time()
-            f[dset_name][0:27,0:1919,0:1079,0:2] = np.empty((27,1919,1079,2))
-            end = time.time()
-            print(f'Whole file write time: {end-start}')
-            f[dset_name][0:27,0:1919,0:1079,0:2] = frame
+    # test read/write of entire file
+    f = h5py.File(path, 'r+', rdcc_nbytes=0)
+    start = time.time()
+    frame = f[dset_name][0:27,0:1919,0:1079,0:2]
+    end = time.time()
+    f[dset_name][0:27,0:1919,0:1079,0:2] = frame
+    f.close()
+    print(f'Whole file read time: {end-start}')
+    f = h5py.File(path, 'r+', rdcc_nbytes=0)
+    start = time.time()
+    f[dset_name][0:27,0:1919,0:1079,0:2] = np.empty((27,1919,1079,2))
+    end = time.time()
+    f.close()
+    print(f'Whole file write time: {end-start}')
+    f = h5py.File(path, 'r+')
+    f[dset_name][0:27,0:1919,0:1079,0:2] = frame
+    f.close()
 
     print('')
 
