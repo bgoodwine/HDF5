@@ -10,6 +10,63 @@ import pprint as pp
 
 FILE  = 'files/movies/katrina.mov'
 
+def test_io(path, dset_name='video_frames'):
+    with h5py.File(path, 'r+') as f:
+        print(f'Opened file: {path}')
+        if dset_name in f.keys():
+            dset = f[dset_name] 
+            print(f'Found dataset: {dset.name}')
+            print(f'\tShape:       {dset.shape}')
+            print(f'\tChunks:      {dset.chunks}')
+            print(f'\tCompression: {dset.compression}')
+            start = time.time()
+            val = dset[27,0,0,0]
+            end = time.time()
+            print(f'Access time: {end-start}')
+            start = time.time()
+            dset[27,0,0,0] = 0
+            end = time.time()
+            print(f'Write time:  {end-start}')
+            dset[27,0,0,0] = val
+    print('')
+
+''' 
+    if f.name == '/':
+        if verbose:
+            print(f.name)
+        structure[f.name] = {}
+        structure[f.name]['groups'] = []
+        structure[f.name]['datasets'] = []
+        structure[f.name]['meta'] = {}
+
+    for dataset in f.keys():
+        n = f.get(dataset)
+
+        # copy over attribute metadata
+        for at in n.attrs.keys():
+            if verbose:
+                print(f'{prefix}\t{at}: {n.attrs[at]}')
+            structure[group]['meta'][at] = n.attrs[at]
+
+        if isinstance(n, h5py.Group):
+            if verbose:
+                print(prefix + n.name)
+            structure[group]['groups'].append(n.name)
+            # create group dictionary entry in structure
+            structure[n.name] = {}
+            structure[n.name]['groups'] = []
+            structure[n.name]['datasets'] = []
+            structure[n.name]['meta'] = {}
+            tree(n, prefix=prefix+'  ', structure=structure, group=n.name)
+        else:
+            if verbose:
+                print(prefix + dataset, end='')
+                print(n[()])
+                print(f'{prefix}\ttype: {n.dtype} size: {n.size} shape: {n.shape} chunked: {n.chunks}')
+            structure[group]['datasets'].append(dataset)
+
+    return structure'''
+
 
 # convert frames to nd array for hdf5 writing
 def get_frames(reader, verbose=False):
@@ -40,7 +97,7 @@ def write_contiguous(source, overwrite=False, verbose=False):
             print(f'File: {hdf5_path} already exists')
             print(f'\tFile size: {os.path.getsize(hdf5_path)}')
             print('')
-            return None
+            return hdf5_path
 
     # get metadata on video
     reader = iio.get_reader(source)
@@ -61,6 +118,7 @@ def write_contiguous(source, overwrite=False, verbose=False):
 
     print(f'\tFile size: {os.path.getsize(hdf5_path)}')
     print('')
+    return hdf5_path
 
 
 # write dataset frames from source in chunks to hdf5 destination
@@ -86,7 +144,7 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
             print(f'File: {hdf5_path} already exists')
             print(f'\tFile size: {os.path.getsize(hdf5_path)}')
             print('')
-            return None
+            return hdf5_path
 
     # get video frames & metadata
     reader = iio.get_reader(source)
@@ -136,11 +194,15 @@ def main():
         print(f'ERROR: {FILE} does not exist')
         sys.exit(1)
 
-    write_contiguous(FILE, overwrite=overwrite)
-    write_chunked(FILE, overwrite=overwrite, compression=compression) # write default chunked
-    write_chunked(FILE, overwrite=overwrite, chunks=(28,1920,1080,3), compression=compression, prefix='chunked_whole')
-    write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,3), compression=compression, prefix='chunked_by_frame')
-    write_chunked(FILE, overwrite=True, chunks=(1,1920,1080,1), compression=compression, prefix='chunked_by_frame_color')
+    files = []
+    files.append(write_contiguous(FILE, overwrite=overwrite))
+    files.append(write_chunked(FILE, overwrite=overwrite, compression=compression)) # write default chunked
+    files.append(write_chunked(FILE, overwrite=overwrite, chunks=(28,1920,1080,3), compression=compression, prefix='chunked_whole'))
+    files.append(write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,3), compression=compression, prefix='chunked_by_frame'))
+    files.append(write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,1), compression=compression, prefix='chunked_by_frame_color'))
+    
+    for f in files:
+        test_io(f)
 
 
 if __name__ == '__main__':
