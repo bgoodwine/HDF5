@@ -14,20 +14,51 @@ def test_io(path, dset_name='video_frames'):
     with h5py.File(path, 'r+') as f:
         print(f'Opened file: {path}')
         if dset_name in f.keys():
-            dset = f[dset_name] 
-            print(f'Found dataset: {dset.name}')
-            print(f'\tShape:       {dset.shape}')
-            print(f'\tChunks:      {dset.chunks}')
-            print(f'\tCompression: {dset.compression}')
+            # display info on file
+            print(f'Found dataset: {dset_name}')
+            #dset = f[dset_name] 
+            #print(f'Found dataset: {dset.name}')
+            #print(f'\tShape:       {dset.shape}')
+            #print(f'\tChunks:      {dset.chunks}')
+            #print(f'\tCompression: {dset.compression}')
+
+            # NOTE: using the notation f[dset][slice] instead of dset[slice] will let the
+            # dset go "out of scope" (https://github.com/h5py/h5py/issues/1960)
+            # and thus caching will NOT occur, which is what we want for this test
+
+            # test read/write of the 0x0 pixel of the last frame for chanel 0
             start = time.time()
-            val = dset[27,0,0,0]
+            val = f[dset_name][27,0,0,0]
             end = time.time()
-            print(f'Access time: {end-start}')
+            print(f'Pixel read time: {end-start}')
             start = time.time()
-            dset[27,0,0,0] = 0
+            f[dset_name][27,0,0,0] = 0
             end = time.time()
-            print(f'Write time:  {end-start}')
-            dset[27,0,0,0] = val
+            print(f'Pixel write time:  {end-start}')
+            f[dset_name][27,0,0,0] = val
+
+            # test read/write of the last frame
+            start = time.time()
+            frame = f[dset_name][27,0:1919,0:1079,0:2]
+            end = time.time()
+            print(f'Frame read time: {end-start}')
+            start = time.time()
+            f[dset_name][27,0:1919,0:1079,0:2] = np.empty((1919,1079,2))
+            end = time.time()
+            print(f'Frame write time: {end-start}')
+            f[dset_name][27,0:1919,0:1079,0:2] = frame
+
+            # test multi-frame read/write
+            start = time.time()
+            frame = f[dset_name][25:27,0:1919,0:1079,0:2]
+            end = time.time()
+            print(f'Multi-frame (3) read time: {end-start}')
+            start = time.time()
+            f[dset_name][25:27,0:1919,0:1079,0:2] = np.empty((2,1919,1079,2))
+            end = time.time()
+            print(f'Multi-frame (3) write time: {end-start}')
+            f[dset_name][25:27,0:1919,0:1079,0:2] = frame
+
     print('')
 
 ''' 
