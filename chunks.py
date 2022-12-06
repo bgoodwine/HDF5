@@ -77,42 +77,16 @@ def test_io(path, dset_name='video_frames'):
 
     print('')
 
-''' 
-    if f.name == '/':
-        if verbose:
-            print(f.name)
-        structure[f.name] = {}
-        structure[f.name]['groups'] = []
-        structure[f.name]['datasets'] = []
-        structure[f.name]['meta'] = {}
 
-    for dataset in f.keys():
-        n = f.get(dataset)
+def get_image(source):
+    reader = iio.get_reader(source)
+    writer = iio.get_writer('files/katrina_frame.mp4')
 
-        # copy over attribute metadata
-        for at in n.attrs.keys():
-            if verbose:
-                print(f'{prefix}\t{at}: {n.attrs[at]}')
-            structure[group]['meta'][at] = n.attrs[at]
-
-        if isinstance(n, h5py.Group):
-            if verbose:
-                print(prefix + n.name)
-            structure[group]['groups'].append(n.name)
-            # create group dictionary entry in structure
-            structure[n.name] = {}
-            structure[n.name]['groups'] = []
-            structure[n.name]['datasets'] = []
-            structure[n.name]['meta'] = {}
-            tree(n, prefix=prefix+'  ', structure=structure, group=n.name)
-        else:
-            if verbose:
-                print(prefix + dataset, end='')
-                print(n[()])
-                print(f'{prefix}\ttype: {n.dtype} size: {n.size} shape: {n.shape} chunked: {n.chunks}')
-            structure[group]['datasets'].append(dataset)
-
-    return structure'''
+    for im in reader:
+        writer.append_data(im[:,:,:])
+        break
+    writer.close()
+    print('Saved first frame as an mp4 image...')
 
 
 # convert frames to nd array for hdf5 writing
