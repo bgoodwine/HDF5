@@ -1,0 +1,74 @@
+File: files/movies/katrina_not_chunked_uncompressed.hdf5 already exists
+	File size: 174188808
+
+File: files/movies/katrina_default_gzip.hdf5 already exists
+	File size: 163839433
+
+File: files/movies/katrina_chunked_whole_gzip.hdf5 already exists
+	File size: 119872390
+
+File: files/movies/katrina_chunked_by_frame_gzip.hdf5 already exists
+	File size: 123944586
+
+File: files/movies/katrina_chunked_by_frame_color_gzip.hdf5 already exists
+	File size: 179927910
+
+Opened file: files/movies/katrina_not_chunked_uncompressed.hdf5
+Found dataset: /video_frames
+	Shape:       (28, 1920, 1080, 3)
+	Chunks:      None
+	Compression: None
+Pixel read time: 0.0019261837005615234
+Pixel write time:  0.0017917156219482422
+Frame read time: 0.08016395568847656
+Frame write time: 0.08165717124938965
+Whole file read time: 2.074532985687256
+Whole file write time: 2.0544307231903076
+
+Opened file: files/movies/katrina_default_gzip.hdf5
+Found dataset: /video_frames
+	Shape:       (28, 1920, 1080, 3)
+	Chunks:      (2, 240, 135, 1)
+	Compression: gzip
+Pixel read time: 0.01731395721435547
+Pixel write time:  0.006657123565673828
+Frame read time: 0.19468259811401367
+Frame write time: 0.24895954132080078
+Whole file read time: 1.880204677581787
+Whole file write time: 2.5318174362182617
+
+Opened file: files/movies/katrina_chunked_whole_gzip.hdf5
+Found dataset: /video_frames
+	Shape:       (28, 1920, 1080, 3)
+	Chunks:      (28, 1920, 1080, 3)
+	Compression: gzip
+Pixel read time: 1.510636329650879
+Pixel write time:  5.730224132537842
+Frame read time: 1.4298601150512695
+Frame write time: 5.400069952011108
+Whole file read time: 1.7749779224395752
+Whole file write time: 5.649153470993042
+
+Opened file: files/movies/katrina_chunked_by_frame_gzip.hdf5
+Found dataset: /video_frames
+	Shape:       (28, 1920, 1080, 3)
+	Chunks:      (1, 1920, 1080, 3)
+	Compression: gzip
+Pixel read time: 0.07847309112548828
+Pixel write time:  0.20160508155822754
+Frame read time: 0.07121038436889648
+Frame write time: 0.19710063934326172
+Whole file read time: 1.630723237991333
+Whole file write time: 5.4813971519470215
+
+Opened file: files/movies/katrina_chunked_by_frame_color_gzip.hdf5
+Found dataset: /video_frames
+	Shape:       (28, 1920, 1080, 3)
+	Chunks:      (1, 1920, 1080, 1)
+	Compression: gzip
+Pixel read time: 0.07004523277282715
+Pixel write time:  0.09298920631408691
+Frame read time: 0.06412243843078613
+Frame write time: 0.10719037055969238
+Whole file read time: 1.5780510902404785
+Whole file write time: 2.4664480686187744
