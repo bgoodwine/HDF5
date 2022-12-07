@@ -17,7 +17,7 @@ ALGS = {'gzip'      : 'gzip',
         'blosc'     : hdf5plugin.Blosc(),
         'bzip2'     : hdf5plugin.BZip2(),
         'lz4'       : hdf5plugin.LZ4(),
-        'sz'        : hdf5plugin.SZ(),
+        'sz'        : hdf5plugin.SZ(absolute=0.1),
         'zfp'       : hdf5plugin.Zfp(),
         'zstd'      : hdf5plugin.Zstd()}
 
