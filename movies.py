@@ -185,10 +185,34 @@ def write_video(source, destination):
     return destination
 
 
+# convert one frame of the video to an mp4 for manual gzip tests
+def write_frames(source):
+    reader = iio.get_reader(source)
+
+    i = 0
+    totalsize = 0
+    for im in reader:
+        path = f'files/frames/katrina_frame{i}.jpeg'
+        writer = iio.get_writer(path)
+        writer.append_data(im[:,:,:])
+        writer.close()
+
+        size = os.path.getsize(path)
+        totalsize += size
+
+        i += 1
+        print(f'Frame {i}: {size}')
+    print(f'Saved frames 0-{i}')
+    print(f'Total size: {totalsize}')
+
+
 def main():
     if not os.path.exists(FILE):
         print(f'ERROR: {FILE} does not exist.')
         sys.exit(1)
+
+    write_frames(FILE)
+    sys.exit(0)
     
     videos = []
     path = FILE[:-3]
