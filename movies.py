@@ -4,8 +4,10 @@ import sys
 import os
 import numpy as np
 import imageio.v2 as iio
+import imageio.v3 as iio3
 import h5py
 import pprint as pp
+import time
 
 # constants
 VIDEOS = ['files/movies/mnms.mp4', 'files/movies/helmholtz.mov']
@@ -211,8 +213,9 @@ def main():
         print(f'ERROR: {FILE} does not exist.')
         sys.exit(1)
 
-    write_frames(FILE)
-    sys.exit(0)
+    # test frames
+    #write_frames(FILE)
+    #sys.exit(0)
     
     videos = []
     path = FILE[:-3]
@@ -233,6 +236,13 @@ def main():
             pp.pprint(meta)
         print('')
         
+    print(f'{"Path":<25}  {"read time (s)":>13}')
+    for video in videos:
+        start = time.time()
+        if not video.endswith('hdf5'):
+            frame = iio3.imread(video, index=27, plugin='pyav')
+            end = time.time()
+            print(f'{video:<25}  {end-start:>13}')
 
 
 

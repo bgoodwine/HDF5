@@ -205,6 +205,7 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
         print(f'\tCreated dataset: {dset.name}')
         print(f'\tChunks:          {dset.chunks}')
         print(f'\tCompression:     {dset.compression}')
+        print(f'\tType:            {dset.dtype}')
 
     print(f'\tFile size: {os.path.getsize(hdf5_path)}')
     print('')
