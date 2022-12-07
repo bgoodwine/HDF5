@@ -4,11 +4,32 @@ import time
 import sys
 import os
 import h5py
+import hdf5plugin
 import numpy as np
 import imageio as iio
 import pprint as pp
 
 FILE  = 'files/movies/katrina.mov'
+
+ALGS = {'gzip'      : 'gzip',
+        'lzf'       : 'lzf',
+        'bitshuffle': hdf5plugin.Bitshuffle(),
+        'blosc'     : hdf5plugin.Blosc(),
+        'bzip2'     : hdf5plugin.BZip2(),
+        'lz4'       : hdf5plugin.LZ4(),
+        'sz'        : hdf5plugin.SZ(),
+        'zfp'       : hdf5plugin.Zfp(),
+        'zstd'      : hdf5plugin.Zstd()}
+
+
+def usage(exit_status):
+    print('USAGE: ./chunks [-o] [-t] [-c compression] [-h]')
+    print('\t -o - overwrite current files')
+    print('\t -t - run I/O tests')
+    print('\t -c - specify compression method (default: gzip)')
+    print('\t -h - display this message')
+    sys.exit(exit_status)
+
 
 def test_io(path, dset_name='video_frames'):
     with h5py.File(path, 'r+') as f:
@@ -78,6 +99,7 @@ def test_io(path, dset_name='video_frames'):
     print('')
 
 
+# convert one frame of the video to an mp4 for manual gzip tests
 def get_image(source):
     reader = iio.get_reader(source)
     writer = iio.get_writer('files/katrina_frame.mp4')
@@ -116,8 +138,6 @@ def write_contiguous(source, overwrite=False, verbose=False):
     if not overwrite:
         if os.path.exists(hdf5_path):
             print(f'File: {hdf5_path} already exists')
-            print(f'\tFile size: {os.path.getsize(hdf5_path)}')
-            print('')
             return hdf5_path
 
     # get metadata on video
@@ -162,9 +182,7 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
     
     if not overwrite:
         if os.path.exists(hdf5_path):
-            print(f'File: {hdf5_path} already exists')
-            print(f'\tFile size: {os.path.getsize(hdf5_path)}')
-            print('')
+            print(f'File: {hdf5_path} exists')
             return hdf5_path
 
     # get video frames & metadata
@@ -178,7 +196,7 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
         if compression is None:
             dset = f.create_dataset('video_frames', data=frames, chunks=chunks)
         else:
-            dset = f.create_dataset('video_frames', data=frames, chunks=chunks, compression=compression)
+            dset = f.create_dataset('video_frames', data=frames, chunks=chunks, compression=ALGS[compression])
         dset.attrs.update(meta.copy())
         dset.attrs['nframes'] = frames.shape[0]
         dset.attrs['original_format'] = source[-3:]
@@ -197,6 +215,7 @@ def main():
     # command line argument: -o to overwrite
     overwrite = False
     compression = 'gzip'
+    io_test = False
 
     if len(sys.argv) > 1:
         for i, arg in enumerate(sys.argv):
@@ -206,14 +225,18 @@ def main():
                 compression = str(sys.argv[i+1])
                 if compression == 'None':
                     compression = None
+            elif arg == '-t':
+                io_test = True
             elif arg == '-h':
-                print('./chunks.py [-o] [-c compression]')
-                print('\t -o - overwrite current files')
-                print('\t -c - specify compression method (default: gzip)')
+                usage(0)
 
     if not os.path.exists(FILE):
         print(f'ERROR: {FILE} does not exist')
         sys.exit(1)
+
+    print('Available 3rd party compression algorithms: ', end='')
+    print(' '.join([key for key in ALGS.keys()]))
+    print('')
 
     files = []
     files.append(write_contiguous(FILE, overwrite=overwrite))
@@ -222,8 +245,10 @@ def main():
     files.append(write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,3), compression=compression, prefix='chunked_by_frame'))
     files.append(write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,1), compression=compression, prefix='chunked_by_frame_color'))
     
-    for f in files:
-        test_io(f)
+    if io_test:
+        print('\nRunning I/O tests...')
+        for f in files:
+            test_io(f)
 
 
 if __name__ == '__main__':
