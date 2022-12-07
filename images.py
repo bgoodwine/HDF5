@@ -5,6 +5,8 @@ import h5py
 import numpy as np
 import cv2
 
+FILE = 'files/movies/katrina.mov'
+
 # write numpy array d to hdf5 file path
 def write_contiguous(path, d):
     with h5py.File(path, 'w') as f:
@@ -26,7 +28,6 @@ def write_chunked(path, d, chunk, comp=None, shuffle=False):
     hdfsize = os.path.getsize(path)
     return hdfsize
 
-
 # returns jpg image as a numpy array
 def readjpg(path, rgb=True):
     img = cv2.imread(path)
@@ -36,7 +37,6 @@ def readjpg(path, rgb=True):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     print(f'Image dimensions: {img.shape}')
     return img, jpgsize
-
 
 def imagetest():
     chunks = [#(128, 64, 1), 
@@ -86,8 +86,36 @@ def imagetest():
         print(size)
 
 
+# convert one frame of the video to an mp4 for manual gzip tests
+def get_image(source, split=False):
+    reader = iio.get_reader(source)
+
+    if not split: # do not split by colors
+        writer = iio.get_writer('files/katrina_frame.mp4')
+        for im in reader:
+            writer.append_data(im[:,:,:])
+            break
+        writer.close()
+    else:         # split by colors
+        rw = iio.get_writer('files/katrina_frame_0.mp4')
+        bw = iio.get_writer('files/katrina_frame_1.mp4')
+        gw = iio.get_writer('files/katrina_frame_2.mp4')
+        for im in reader:
+            rw.append_data(im[:,:,0])
+            gw.append_data(im[:,:,1])
+            bw.append_data(im[:,:,2])
+
+    print('Saved first frame as an mp4 image...')
+
+
 def main():
-    imagetest()
+    if not os.path.exists(FILE):
+        print(f'ERROR: {FILE} does not exist')
+        sys.exit(1)
+    
+    get_image(source)
+
+    #imagetest()
 
 
 if __name__ == '__main__':
