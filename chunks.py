@@ -18,7 +18,7 @@ ALGS = {'gzip'      : 'gzip',
         'bzip2'     : hdf5plugin.BZip2(),
         'lz4'       : hdf5plugin.LZ4(),
         'sz'        : hdf5plugin.SZ(absolute=0.1),
-        'zfp'       : hdf5plugin.Zfp(),
+        'zfp'       : hdf5plugin.Zfp(reversible=True),
         'zstd'      : hdf5plugin.Zstd()}
 
 
@@ -127,7 +127,8 @@ def get_frames(reader, verbose=False):
     # stack frames onto nparray with shape (num_frames, height, width, channel) 
     frames = np.stack(frames_list, axis=0)
     if verbose:
-        print(f'Frames shape: {frames.shape}\n')
+        print(f'Frames shape: {frames.shape}')
+        print(f'Frames type:   {frames.dtype}\n')
 
     return frames
 
@@ -196,7 +197,7 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
         if compression is None:
             dset = f.create_dataset('video_frames', data=frames, chunks=chunks)
         else:
-            dset = f.create_dataset('video_frames', data=frames, chunks=chunks, compression=ALGS[compression])
+            dset = f.create_dataset('video_frames', data=frames, dtype=frames.dtype, chunks=chunks, compression=ALGS[compression])
         dset.attrs.update(meta.copy())
         dset.attrs['nframes'] = frames.shape[0]
         dset.attrs['original_format'] = source[-3:]

@@ -9,15 +9,10 @@ import pprint as pp
 
 # constants
 VIDEOS = ['files/movies/mnms.mp4', 'files/movies/helmholtz.mov']
-#VIDEOS = ['files/movies/mnms.mp4']
 FORMATS = ['mp4', 'mov', 'hdf5', 'avi']
 
-#MOV_VIDEO = 'files/movies/helmholtz.mov'
-#MP4_VIDEO = 'files/movies/helmholtz.mp4'
-#HDF_VIDEO = 'files/movies/helmholtz.hdf5'
-#MP4_VIDEO = 'files/movies/mnms.mp4'
-#MOV_VIDEO = 'files/movies/mnms.mov'
-#HDF_VIDEO = 'files/movies/mnms.hdf5'
+FILE = 'files/movies/katrina.mov'
+FILE_FORMATS = ['hdf5', 'avi', 'mov']
 
 
 # display frames in iio imread frames
@@ -87,12 +82,6 @@ def tree(f, shapes, chunks):
 
 def compare_formats(mp4_video, avi_video, hdf_video):
     # TODO: decide if it's necessary to read in the data? can you get it from meta?
-    #print('Reading frames...')
-    #print('MP4...')
-    #mp4_frames = iio.imread(mp4_video, plugin='pyav')
-    #print('AVI...')
-    #avi_frames = iio.imread(avi_video, plugin='ffmpeg')
-    #print('HDF5...')
     mp4_reader = iio.get_reader(mp4_video)
     avi_reader = iio.get_reader(avi_video)
     mp4 = mp4_reader.get_meta_data()
@@ -102,36 +91,12 @@ def compare_formats(mp4_video, avi_video, hdf_video):
     #print(avi)
     hdf_file   = h5py.File(hdf_video, 'r')
 
-    # convert hdf5 data to np ndarray, gather metadata
-    '''
-    shapes = []
-    chunks = []
-    hdf_frames = np.empty(0)
-    for dname in hdf_file.keys():
-        dset = hdf_file[dname]
-        if isinstance(n, h5py.Group):
-        hdf_frames = np.append(hdf_frames, dset)
-        shapes.append(str(dset.shape))
-        chunks.append(str(dset.chunks))
-    '''
-
     shapes, chunks = tree(hdf_file, [], [])
     
     hdf_chunks = ' '.join(chunks)
     hdf_shape = ' '.join(shapes)
     mp4_shape = str(mp4['size'])
     avi_shape = str(avi['size'])
-    
-    # ensure equality of audio/video data
-    '''
-    print('Comparing arrays...')
-    if mp4_frames.all() != avi_frames.all():
-        print('MP4 frames do not match AVI frames')
-    if mp4_frames.all() != hdf_frames.all():
-        print('HDF frames do not match MP4 frames')
-    if avi_frames.all() != hdf_frames.all():
-        print('AVI frames do not match HDF frames')
-        '''
 
     # collect size data
     mp4_size = os.path.getsize(mp4_video)
@@ -152,7 +117,7 @@ def compare_formats(mp4_video, avi_video, hdf_video):
     print(f'{sizes[0]} : {sizes[2]:<10} = {sizes[0]/sizes[2]}')
 
 
-def main():
+def video_test():
     for video in VIDEOS:
         print(f'\n\nOriginal video: {video}')
         # check for existing conversions of original video
@@ -204,7 +169,46 @@ def main():
         print('')
         compare_formats(mp4_path, avi_path, hdf_path)
 
+def write_video(source, destination):
+    if destination.endswith('hdf5'):
+        print(f'ERROR: cannot write to {destination} with iio.')
+        sys.exit(1)
 
+    reader = iio.get_reader(source)
+    meta   = reader.get_meta_data()
+    writer = iio.get_writer(destination, fps=meta['fps'])
+    
+    print(f'Converting: {source} --> {destination}')
+    for im in reader:
+        writer.append_data(im[:,:,:])
+    writer.close()
+    return destination
+
+
+def main():
+    if not os.path.exists(FILE):
+        print(f'ERROR: {FILE} does not exist.')
+        sys.exit(1)
+    
+    videos = []
+    path = FILE[:-3]
+
+    for fm in FILE_FORMATS:
+        if not os.path.exists(path+fm):
+            videos.append(write_video(FILE, path+fm))
+        else:
+            videos.append(path+fm)
+
+    print(f'{"Path":<25}  {"size (b)":>13}')
+    for video in videos:
+        size = os.path.getsize(video)
+        print(f'{video:<25}  {size:>13}')
+        if not video.endswith('hdf5'):
+            reader = iio.get_reader(video)
+            meta = reader.get_meta_data()
+            pp.pprint(meta)
+        print('')
+        
 
 
 
