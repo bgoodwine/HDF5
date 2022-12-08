@@ -2,6 +2,7 @@
 
 [HDF5](https://www.hdfgroup.org/solutions/hdf5/) is a file format structured like a file system; data is stored in arbitrary NxN datasets, which are organized in a hierarchy in groups and sub-groups. Its main benefits involve customizability, self-description, and scalability. 
 > As satellites and other instruments increase their ability to collect data at higher and higher resolution, they need a format that can scale easily and that can provide the ability to acquire data quickly, provide access to specific areas of interest out of large masses of information, accommodate increasingly complex and evolving metadata, and be trusted to support long-term archiving. 
+> 
 > [The HDF Group](https://www.hdfgroup.org/portfolio-item/earth-sciences/)
 
 ![](./format.png)
@@ -16,7 +17,14 @@ The `chunk.py` program converts an MOV or AVI video into HDF5 files with the fol
 * One chunk per frame in the video
 * One chunk per frame and color channel in the video 
 
-As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file.
+As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file. Running the `chunk.py` program with the `-t` flag runs the access time tests, which analyze the following access patterns:
+* Reading and writing one pixel within the video
+* Reading and writing one frame within the video
+* Reading and writing the entire video
+
+To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. 
+
+## 
 
 # Results
 
@@ -25,7 +33,6 @@ As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file.
 Note: all access time tests are performed with a zero-byte chunk cache, to ensure the access times compared are all accesses to "new" areas of the file. 
 
 ![file_format](./file_format.png)
-
 ![access_time](./access_time.png)
 
 HDF5 clearly prioritizies access time over compression, and is a good choice for applications that are knowledgeable about their access patterns and can align the chunks to match them. 
@@ -39,7 +46,6 @@ Compression ratio acheived with gzip for different chunking methods has a genera
 Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
 
 ![](./read_times.png)
-
 ![](./write_times.png)
 
 Note that gzip compression scales poorly, which is the cause of the inefficient write times for **by frame** but not **by frame+color**. While **whole** and **by frame** provide similar compression ratios, the access time to the **whole** file is significantly worse than the access time to the **by frame** file unless the entire file is being accessed.
