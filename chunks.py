@@ -25,7 +25,7 @@ ALGS = {'gzip'      : 'gzip',
 def usage(exit_status):
     print('USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]')
     print('\t -f - pass a path to a MOV of AVI file to analyze')
-    print('\t -o - overwrite current files')
+    print('\t -o - overwrite existing files (hdf5 file names built from properties)')
     print('\t -t - run I/O tests')
     print('\t -c - specify compression method (default: gzip)')
     print('\t -h - display this message')

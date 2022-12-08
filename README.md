@@ -18,7 +18,7 @@ Locally install requirements with pip3: `./install.sh`
 ```
 USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]
 	 -f - pass a path to a MOV of AVI file to analyze
-	 -o - overwrite current files
+	 -o - overwrite existing files (hdf5 file names built from properties)
 	 -t - run I/O tests
 	 -c - specify compression method (default: gzip)
 	 -h - display this message
