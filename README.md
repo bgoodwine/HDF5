@@ -13,7 +13,7 @@ Check version: `python3 --version`
 Locally install requirements with pip3: `./install.sh`
 
 
-### Run
+### Run your own tests
 `chunks.py` - convert a MOV or AVI video to hdf5, compare file sizes, access times for different chunking methods
 ```
 USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]
