@@ -82,7 +82,7 @@ Note that the better compression ratio is not a result of the lower chunk size; 
 
 Note: the dimensions within the access time test may need to be modified, as the current dimensions are hardcoded to the dimensions of my test file; (28, 1920, 1080, 3), or a 28-frame 1920x1080 pixel 3-channel color video. 
 ```python
-# test read/write of entire file
+# test read of entire file
 f = h5py.File(path, 'r+', rdcc_nbytes=0)
 start = time.time()
 frame = f[dset_name][0:27,0:1919,0:1079,0:2]
