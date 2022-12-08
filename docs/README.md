@@ -19,7 +19,7 @@ The `chunk.py` program converts an MOV or AVI video into HDF5 files with the fol
 * One chunk per frame and color channel in the video 
 
 ```python
-# Ruby code with syntax highlighting
+# Available compression algorithms & their names
 ALGS = {'gzip'      : 'gzip',
         'lzf'       : 'lzf',
         'bitshuffle': hdf5plugin.Bitshuffle(),
