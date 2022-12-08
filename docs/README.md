@@ -47,14 +47,16 @@ Note that gzip compression scales poorly, which is the cause of the inefficient 
 ![](./all_read_times.png)
 ![](./all_write_times.png)
 
+This makes logical sense; if the access is an access to the entire file, then every chunk will have to be accessed, compressed, and/or uncompressed regardless of the chunk size. If you are making an application where the access pattern is known to be the entire file, you can optomize chunk size for compression with relatively little cost to access time. 
+
+![](./chunk_size.png)
+
 Note that the better compression ratio is not a result of the lower chunk size; the default h5py chunk dimensions provide a better compression ratio than chunking **by frame+color**, despite having significantly more chunks of a smaller size. 
 
 | Method         | Chunk size (bytes) | Number of chunks | Dimensions         |
 |:---------------|:-------------------|:-----------------|:-------------------|
 | h5py default   | 64800              | 2688             | (2, 240, 135, 1)   |
 | by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) |
-
-![](./chunk_size.png)
 
 # Run these tests yourself
 
