@@ -45,11 +45,11 @@ To ensure the reading and writing operations were timed as independent operation
 ![file_format](./file_format.png)
 ![access_time](./access_time.png)
 
-HDF5 clearly prioritizies access time over compression, and is a good choice for applications that are knowledgeable about their access patterns and can align the chunks to match them. 
+HDF5 clearly prioritizes access time over compression, and is a good choice for applications that are knowledgeable about their access patterns and can align the chunks to match them. 
 
 ## Chunking methods
 
-Compression ratio acheived with gzip for different chunking methods has a general trend of a smaller chunk size leading to larger files; more chunks mean more entries into the B-tree the chunks are stored in, and smaller intervals that can be compressed.  
+Compression ratio achieved with gzip for different chunking methods has a general trend of a smaller chunk size leading to larger files; more chunks mean more entries into the B-tree the chunks are stored in, and smaller intervals that can be compressed.  
 
 ![](./chunking_sizes.png)
 
@@ -63,7 +63,7 @@ Note that gzip compression scales poorly, which is the cause of the inefficient 
 ![](./all_read_times.png)
 ![](./all_write_times.png)
 
-This makes logical sense; if the access is an access to the entire file, then every chunk will have to be accessed, compressed, and/or uncompressed regardless of the chunk size. If you are making an application where the access pattern is known to be the entire file, you can optomize chunk size for compression with relatively little cost to access time. 
+This makes logical sense; if the access is an access to the entire file, then every chunk will have to be accessed, compressed, and/or uncompressed regardless of the chunk size. If you are making an application where the access pattern is known to be the entire file, you can optimize chunk size for compression with relatively little cost to access time. 
 
 ![](./chunk_size.png)
 
