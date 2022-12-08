@@ -29,6 +29,8 @@ The `chunk.py` program converts an MOV or AVI video into HDF5 files with the fol
 * One chunk per frame in the video
 * One chunk per frame and color channel in the video 
 
+The dimensions of the vidoes are: `(number of frames, height of frame, width of frame, color channel)`. 
+
 As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file. Running the `chunk.py` program with the `-t` flag runs the access time tests, which analyze the following access patterns:
 * Reading and writing one pixel within the video
 * Reading and writing one frame within the video
@@ -77,6 +79,17 @@ Note that the better compression ratio is not a result of the lower chunk size; 
 1. Choose a MOV or AVI video (<= 40 frames recommended as it is processing intensive)
 2. Clone the github
 3. Follow the instructions on the [README.md](https://github.com/bgoodwine/HDF5#readme) to install the required pip3 packages and run the `chunks.py` program with your file as an input
+
+Note: the dimensions within the access time test may need to be modified, as the current dimensions are hardcoded to the dimensions of my test file; (28, 1920, 1080, 3), or a 28-frame 1920x1080 pixel 3-channel color video. 
+```python
+# test read/write of entire file
+f = h5py.File(path, 'r+', rdcc_nbytes=0)
+start = time.time()
+frame = f[dset_name][0:27,0:1919,0:1079,0:2]
+end = time.time()
+f[dset_name][0:27,0:1919,0:1079,0:2] = frame
+f.close()
+```
 
 Multiple compression algorithms are available for the chunked HDF5 files, including 3rd party compression algorithms. These can be specified with the `-c [algorithm]` option.
 
