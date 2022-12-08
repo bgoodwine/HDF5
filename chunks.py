@@ -23,7 +23,8 @@ ALGS = {'gzip'      : 'gzip',
 
 
 def usage(exit_status):
-    print('USAGE: ./chunks [-o] [-t] [-c compression] [-h]')
+    print('USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]')
+    print('\t -f - pass a path to a MOV of AVI file to analyze')
     print('\t -o - overwrite current files')
     print('\t -t - run I/O tests')
     print('\t -c - specify compression method (default: gzip)')
@@ -214,14 +215,15 @@ def write_chunked(source, chunks=None, prefix=None, overwrite=False, compression
 
 
 def main():
-    # command line argument: -o to overwrite
     overwrite = False
     compression = 'gzip'
     io_test = False
 
     if len(sys.argv) > 1:
         for i, arg in enumerate(sys.argv):
-            if arg == '-o':
+            if arg == '-f':
+                FILE = str(sys.argv[i+1])
+            elif arg == '-o':
                 overwrite = True
             elif arg == '-c':
                 compression = str(sys.argv[i+1])
