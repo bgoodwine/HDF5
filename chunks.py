@@ -134,6 +134,31 @@ def get_frames(reader, verbose=False):
     return frames
 
 
+# hdf5 shape will be (num_frames, height, width, channel) 
+def get_chunking_methods(source):
+    reader = iio.get_reader(source)
+
+    # count num_frames
+    count = 0
+    frame_shape = []
+    for im in reader:
+        count += 1
+        frame_shape = im.shape
+
+    # extract frame shape data
+    height = frame_shape[0]
+    width = frame_shape[1]
+    channel = frame_shape[2]
+
+    # construct methods
+    methods = {}
+    methods['whole'] = (count, height, width, channel) # whole
+    methods['frame'] = (1, height, width, channel)     # by frame
+    methods['frame+color'] = (1, height, width, 1)     # by frame + color
+
+    return methods
+
+
 # write dataset frames from source without chunks to hdf5 destination
 def write_contiguous(source, overwrite=False, verbose=False):
     hdf5_path = source[:-4]+'_not_chunked_uncompressed'+'.hdf5'
@@ -218,6 +243,7 @@ def main():
     overwrite = False
     compression = 'gzip'
     io_test = False
+    FILE = 'files/movies/katrina.mov'
 
     if len(sys.argv) > 1:
         for i, arg in enumerate(sys.argv):
@@ -241,6 +267,12 @@ def main():
     print('Available 3rd party compression algorithms: ', end='')
     print(' '.join([key for key in ALGS.keys()]))
     print('')
+
+    methods = get_chunking_methods(FILE)
+
+    for method in methods.keys():
+        print(f'Chunking by {method}: ', end='')
+        print(methods[method])
 
     files = []
     files.append(write_contiguous(FILE, overwrite=overwrite))
