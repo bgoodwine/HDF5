@@ -31,13 +31,27 @@ ALGS = {'gzip'      : 'gzip',
 
 ## HDF5, MOV, and AVI
 
-### File format & chunking method v. file size
 ![file_format](./file_format.png)
 
-### File format & chunking method v. single frame read time
 ![access_time](./access_time.png)
+
+Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** 
 
 ## Chunking methods
 
-### File format & chunking method v. file size
-<img src="./read_times.png" width="500" height="300"> <img src="./write_times.png" width="500" height="300"> 
+Read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
+![](./read_time.png)
+
+![](./write_time.png)
+
+Note that gzip scales poorly, which is the cause of the inefficient write times for **by frame** but not **by frame+color**. 
+
+### Compression ratio & chunk size
+![](./chunk_size.png)
+![](./chunk_sizes.png)
+
+# Run these tests yourself
+
+1. Cline the github <a href="https://github.com/bgoodwine/HDF5" class="downloads">
+2. Choose a MOV or AVI video (<= 40 frames recommended as it is processing intensive)
+3. 
