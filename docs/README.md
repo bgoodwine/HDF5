@@ -35,23 +35,31 @@ ALGS = {'gzip'      : 'gzip',
 
 ![access_time](./access_time.png)
 
-Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** 
-
 ## Chunking methods
 
-Read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
+Compression ratio acheived with gzip for different chunking methods has a general trend of a smaller chunk size leading to larger files; more chunks mean more entries into the B-tree the chunks are stored in, and smaller intervals that can be compressed.  
+
+![](./chunk_sizes.png)
+
+Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
+
 ![](./read_time.png)
 
 ![](./write_time.png)
 
-Note that gzip scales poorly, which is the cause of the inefficient write times for **by frame** but not **by frame+color**. 
+Note that gzip compression scales poorly, which is the cause of the inefficient write times for **by frame** but not **by frame+color**. 
 
-### Compression ratio & chunk size
+Note that the better compression ratio is not a result of the lower chunk size; the default h5py chunk dimensions provide a better compression ratio than chunking **by frame+color**, despite having significantly more chunks of a smaller size. 
+
+| Method         | Chunk size (bytes) | Number of chunks | Dimensions         |
+|:---------------|:-------------------|:-----------------|:-------------------|
+| h5py default   | 64800              | 2688             | (2, 240, 135, 1)   |
+| by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) |
+
 ![](./chunk_size.png)
-![](./chunk_sizes.png)
 
 # Run these tests yourself
 
-1. Cline the github <a href="https://github.com/bgoodwine/HDF5" class="downloads">
-2. Choose a MOV or AVI video (<= 40 frames recommended as it is processing intensive)
-3. 
+1. Choose a MOV or AVI video (<= 40 frames recommended as it is processing intensive)
+2. Clone the github
+3. Follow the instructions on the [README.md](https://github.com/bgoodwine/HDF5#readme) to install the required pip3 packages and run the `chunks.py` program with your file as an input
