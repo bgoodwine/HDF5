@@ -1,6 +1,6 @@
 # HDF5
 
-### Requirements
+### Install
 Install `python 3.10`
 * [Windows 64-bit installer](https://www.python.org/downloads/release/python-3100/#:~:text=Windows%20installer%20(64%2Dbit))
 
@@ -22,7 +22,20 @@ pip3 install --user imageio[ffmpeg]
 pip3 install --user opencv-python
 ```
 
+### Run
+`chunks.py` - convert mov/avi video file to hdf5, compare file sizes, access times for different chunking methods
+```
+USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]
+	 -f - pass a path to a MOV of AVI file to analyze
+	 -o - overwrite current files
+	 -t - run I/O tests
+	 -c - specify compression method (default: gzip)
+	 -h - display this message
+```
 
-### Files
-* `files/TempData.hdf5` - default contiguous storage
-* `files/TempData_100.hdf5` - 100x100 chunked storage
+Chunk types tested
+* no chunking
+* h5py default
+* entire file
+* by frame
+* by frame and color
