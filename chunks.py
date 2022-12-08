@@ -51,13 +51,13 @@ def test_io(path, dset_name='video_frames'):
     val = f[dset_name][27,0,0,0]
     end = time.time()
     f.close()
-    print(f'Pixel read time: {end-start}')
+    print(f'Pixel read time:        {end-start}')
     f = h5py.File(path, 'r+', rdcc_nbytes=0)
     start = time.time()
     f[dset_name][27,0,0,0] = 0
     end = time.time()
     f.close()
-    print(f'Pixel write time:  {end-start}')
+    print(f'Pixel write time:       {end-start}')
     f = h5py.File(path, 'r+')
     f[dset_name][27,0,0,0] = val
     f.close()
@@ -68,13 +68,13 @@ def test_io(path, dset_name='video_frames'):
     frame = f[dset_name][27,0:1919,0:1079,0:2]
     end = time.time()
     f.close()
-    print(f'Frame read time: {end-start}')
+    print(f'Frame read time:        {end-start}')
     f = h5py.File(path, 'r+', rdcc_nbytes=0)
     start = time.time()
     f[dset_name][27,0:1919,0:1079,0:2] = np.empty((1919,1079,2))
     end = time.time()
     f.close()
-    print(f'Frame write time: {end-start}')
+    print(f'Frame write time:       {end-start}')
     f = h5py.File(path, 'r+')
     f[dset_name][27,0:1919,0:1079,0:2] = frame
     f.close()
@@ -86,13 +86,13 @@ def test_io(path, dset_name='video_frames'):
     end = time.time()
     f[dset_name][0:27,0:1919,0:1079,0:2] = frame
     f.close()
-    print(f'Whole file read time: {end-start}')
+    print(f'Whole file read time:   {end-start}')
     f = h5py.File(path, 'r+', rdcc_nbytes=0)
     start = time.time()
     f[dset_name][0:27,0:1919,0:1079,0:2] = np.empty((27,1919,1079,2))
     end = time.time()
     f.close()
-    print(f'Whole file write time: {end-start}')
+    print(f'Whole file write time:  {end-start}')
     f = h5py.File(path, 'r+')
     f[dset_name][0:27,0:1919,0:1079,0:2] = frame
     f.close()
@@ -275,25 +275,24 @@ def main():
     print('')
 
     methods = get_chunking_methods(FILE)
-    files = []
+    files = {}
     print(f'Converting to hdf5 contiguous: ')
-    files.append(write_contiguous(FILE, overwrite=overwrite))
+    files['contiguous'] = write_contiguous(FILE, overwrite=overwrite)
     print(f'Chunking by h5py default chunking selection: ')
-    files.append(write_chunked(FILE, overwrite=overwrite, compression=compression)) # write default chunked
+    files['default'] = write_chunked(FILE, overwrite=overwrite, compression=compression) # write default chunked
     for method in methods.keys():
         print(f'Chunking by {method}: ', end='')
         print(methods[method])
-        files.append(write_chunked(FILE, 
+        files[method] = write_chunked(FILE, 
                                    overwrite=overwrite,
                                    chunks=methods[method],
                                    compression=compression,
                                    prefix=method)
-                     )
 
     if io_test:
-        print('\nRunning I/O tests...')
-        for f in files:
-            test_io(f)
+        for method in files:
+            print(f'Running I/O test for {method}:')
+            test_io(files[method])
 
 
 if __name__ == '__main__':
