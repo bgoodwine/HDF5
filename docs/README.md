@@ -43,9 +43,9 @@ Compression ratio acheived with gzip for different chunking methods has a genera
 
 Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
 
-![](./read_time.png)
+![](./read_times.png)
 
-![](./write_time.png)
+![](./write_times.png)
 
 Note that gzip compression scales poorly, which is the cause of the inefficient write times for **by frame** but not **by frame+color**. 
 
