@@ -11,16 +11,7 @@ Install `python 3.10`
 Check version: `python3 --version`
 
 Locally install requirements with pip3: `./install.sh`
-```
-pip3 install --user numpy
-pip3 install --user Pillow
-pip3 install --user h5py
-pip3 install --user hdf5plugin
-pip3 install --user imageio
-pip3 install --user av
-pip3 install --user imageio[ffmpeg]
-pip3 install --user opencv-python
-```
+
 
 ### Run
 `chunks.py` - convert mov/avi video file to hdf5, compare file sizes, access times for different chunking methods
