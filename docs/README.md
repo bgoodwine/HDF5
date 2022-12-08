@@ -9,7 +9,7 @@
 REMEMBER: 2000 words typical, 4000 words max
 
 # Tests
-### Access time & file size with different chunking methods 
+## Access time & file size with different chunking methods 
 The `chunk.py` program converts an MOV or AVI video into HDF5 files with the following chunking methods:
 * Default h5py chunking method
 * One chunk for the entire video
