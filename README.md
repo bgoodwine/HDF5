@@ -10,7 +10,7 @@ Install `python 3.10`
 
 Check version: `python3 --version`
 
-Locally install requirements with pip3: `./install.sh`
+Locally install the pip3 packages required: `./install.sh`
 
 
 ### Run your own tests
