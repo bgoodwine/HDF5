@@ -264,23 +264,32 @@ def main():
         print(f'ERROR: {FILE} does not exist')
         sys.exit(1)
 
-    print('Available 3rd party compression algorithms: ', end='')
+    print(f'Analyzing file: {FILE}')
+    print(f'Overwrite:      {str(overwrite)}')
+    print(f'Run I/O tests:  {str(io_test)}')
+    print(f'Compression:    {str(compression)}')
+
+    print('')
+    print('\tAvailable 3rd party compression algorithms: ', end='')
     print(' '.join([key for key in ALGS.keys()]))
     print('')
 
     methods = get_chunking_methods(FILE)
-
+    files = []
+    print(f'Converting to hdf5 contiguous: ')
+    files.append(write_contiguous(FILE, overwrite=overwrite))
+    print(f'Chunking by h5py default chunking selection: ')
+    files.append(write_chunked(FILE, overwrite=overwrite, compression=compression)) # write default chunked
     for method in methods.keys():
         print(f'Chunking by {method}: ', end='')
         print(methods[method])
+        files.append(write_chunked(FILE, 
+                                   overwrite=overwrite,
+                                   chunks=methods[method],
+                                   compression=compression,
+                                   prefix=method)
+                     )
 
-    files = []
-    files.append(write_contiguous(FILE, overwrite=overwrite))
-    files.append(write_chunked(FILE, overwrite=overwrite, compression=compression)) # write default chunked
-    files.append(write_chunked(FILE, overwrite=overwrite, chunks=(28,1920,1080,3), compression=compression, prefix='chunked_whole'))
-    files.append(write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,3), compression=compression, prefix='chunked_by_frame'))
-    files.append(write_chunked(FILE, overwrite=overwrite, chunks=(1,1920,1080,1), compression=compression, prefix='chunked_by_frame_color'))
-    
     if io_test:
         print('\nRunning I/O tests...')
         for f in files:
