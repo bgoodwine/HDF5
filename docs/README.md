@@ -40,7 +40,4 @@ ALGS = {'gzip'      : 'gzip',
 ## Chunking methods
 
 ### File format & chunking method v. file size
-![read_times](./read_times.png)
-
-### File format & chunking method v. single frame read time
-![write_times](./write_times.png)
+<img src="./read_times.png" width="500" height="300"> <img src="./write_times.png" width="500" height="300"> 
