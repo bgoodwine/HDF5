@@ -39,7 +39,7 @@ ALGS = {'gzip'      : 'gzip',
 
 Compression ratio acheived with gzip for different chunking methods has a general trend of a smaller chunk size leading to larger files; more chunks mean more entries into the B-tree the chunks are stored in, and smaller intervals that can be compressed.  
 
-![](./chunk_sizes.png)
+![](./chunking_sizes.png)
 
 Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
 
