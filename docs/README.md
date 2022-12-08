@@ -36,8 +36,6 @@ As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file.
 
 To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. 
 
-## 
-
 # Results
 
 ## HDF5, MOV, and AVI
