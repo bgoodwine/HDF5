@@ -28,5 +28,19 @@ ALGS = {'gzip'      : 'gzip',
 ```
 
 # Results
+
+## HDF5, MOV, and AVI
+
+### File format & chunking method v. file size
+![file_format](./file_format.png)
+
+### File format & chunking method v. single frame read time
 ![access_time](./access_time.png)
-![access_time](./file_format.png)
+
+## Chunking methods
+
+### File format & chunking method v. file size
+![read_times](./read_times.png)
+
+### File format & chunking method v. single frame read time
+![write_times](./write_times.png)
