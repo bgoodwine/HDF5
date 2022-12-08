@@ -19,8 +19,6 @@ So to read one element of a chunked dataset, the entire chunk must first be read
 
 Selecting an appropriate chunk size is not as important as selecting an appropriate chunk dimension; if you are aware of the way in which your application will access the data within a dataset, you can align the chunks to the anticipated access pattern to improve access time. 
 
-REMEMBER: 2000 words typical, 4000 words max
-
 # Tests
 ## Access time & file size with different chunking methods 
 The `chunk.py` program converts an MOV or AVI video into HDF5 files with the following chunking methods:
