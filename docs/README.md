@@ -1,6 +1,10 @@
 # Background on HDF5
 
-[HDF5](https://www.hdfgroup.org/solutions/hdf5/) is a file format structured like a file system; data is stored in arbitrary NxN datasets, which are organized in a hierarchy in groups and sub-groups. 
+[HDF5](https://www.hdfgroup.org/solutions/hdf5/) is a file format structured like a file system; data is stored in arbitrary NxN datasets, which are organized in a hierarchy in groups and sub-groups. Its main benefits involve customizability, self-description, and scalability. 
+> As satellites and other instruments increase their ability to collect data at higher and higher resolution, they need a format that can scale easily and that can provide the ability to acquire data quickly, provide access to specific areas of interest out of large masses of information, accommodate increasingly complex and evolving metadata, and be trusted to support long-term archiving. 
+> [The HDF Group](https://www.hdfgroup.org/portfolio-item/earth-sciences/)
+
+![](./format.png)
 
 # Tests
 ### Access time & file size with different chunking methods 
@@ -34,6 +38,8 @@ ALGS = {'gzip'      : 'gzip',
 ![file_format](./file_format.png)
 
 ![access_time](./access_time.png)
+
+Note: all access time tests are performed with a zero-byte chunk cache, to ensure the access times compared are all accesses to "new" areas of the file. 
 
 ## Chunking methods
 
