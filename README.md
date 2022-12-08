@@ -7,7 +7,9 @@
 * [MacOS 64-bit universal installer](https://www.python.org/downloads/release/python-3100/#:~:text=SIG-,macOS%2064%2Dbit%20universal2%20installer,-macOS)
 
 * Linux: `sudo apt install software-properties-common -y` + `sudo add-apt-repository ppa:deadsnakes/ppa -y` + `sudo apt install python3.10 -y`
+
 Check version: `python3 --version`
+
 Locally install requirements with pip3: `./install.sh`
 ```
 pip3 install --user numpy
