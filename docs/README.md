@@ -49,7 +49,7 @@ To ensure the reading and writing operations were timed as independent operation
 # test read time of one pixel 
 f = h5py.File(path, 'r+', rdcc_nbytes=0) # rdcc_nbytes = chunk cache size
 start = time.time()
-val = f[dset_name][27,0,0,0]
+val = f[dset_name][27,0,0,0] # read in the 0x0 pixel of the 0 color channel of the 27th frame
 end = time.time()
 f.close()
 print(f'Pixel read time:        {end-start}')
@@ -57,7 +57,7 @@ print(f'Pixel read time:        {end-start}')
 # test write time of one pixel 
 f = h5py.File(path, 'r+', rdcc_nbytes=0) # rdcc_nbytes = chunk cache size
 start = time.time()
-f[dset_name][27,0,0,0] = 0
+f[dset_name][27,0,0,0] = 0 # set the 0x0 pixel of the 0 color channel of the 27th frame to 0
 end = time.time()
 f.close()
 print(f'Pixel write time:       {end-start}')
