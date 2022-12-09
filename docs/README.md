@@ -19,7 +19,15 @@ So to read one element of a chunked dataset, the entire chunk must first be read
 ![](./chunk_cache.png)
 > Source: [Improving I/O Performance When Working with HDF5 Compressed Datasets](https://support.hdfgroup.org/HDF5/doc/TechNotes/TechNote-HDF5-ImprovingIOPerformanceCompressedDatasets.pdf) with minor changes to illustrate the chunk cache
 
-Selecting an appropriate chunk size is not as important as selecting an appropriate chunk dimension; if you are aware of the way in which your application will access the data within a dataset, you can align the chunks to the anticipated access pattern to improve access time. 
+Selecting an appropriate chunk size is not as important as selecting an appropriate chunk dimension; if you are aware of the way in which your application will access the data within a dataset, you can align the chunks to the anticipated access pattern to improve access time. For example, given you have an AxB or (A, B) dimensional dataset, if you chunk by (1, B), then for each row in A, you have one chunk that contains all the columns in B. If you chunk by (A, 1), for each column in B, you have one chunk that contains all the rows in A; this is the example shown below. 
+
+![](./column_wise.png)
+
+Say for this dataset with (A, 1) dimensional chunks, you want to access one row of data, seen in oragne above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the orange data you actually want to access. So, to access the entire row, you would actually have to read in the entire file from disk!
+
+![](./row_wise.png)
+
+Contrast this with (1, B) dimensional chunks, seen above. Because the chunk dimension aligns with the rows, to access one row, you only have to read in one chunk of data. In this way, if you are knowledgeable about the access patterns that your file will need to accommodate, you can select a chunk dimensionality that aligns with it to improve access time. 
 
 # Tests
 ## Access time & file size with different chunking methods 
