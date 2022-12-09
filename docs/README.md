@@ -23,7 +23,7 @@ Selecting an appropriate chunk size is not as important as selecting an appropri
 
 ![](./column_wise.png)
 
-Say for this dataset with (A, 1) dimensional chunks, you want to access one row of data, seen in oragne above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the orange data you actually want to access. So, to access the entire row, you would actually have to read in the entire file from disk!
+Say for this dataset with (A, 1) dimensional chunks, you want to access one row of data, seen in orange above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the orange data you actually want to access. So, to access the entire row, you would actually have to read in the entire file from disk!
 
 ![](./row_wise.png)
 
@@ -37,7 +37,7 @@ The `chunk.py` program converts an MOV or AVI video into HDF5 files with the fol
 * One chunk per frame in the video
 * One chunk per frame and color channel in the video 
 
-The dimensions of the vidoes are: `(number of frames, height of frame, width of frame, color channel)`. 
+The dimensions of the videos are: `(number of frames, height of frame, width of frame, color channel)`. 
 
 As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file. Running the `chunk.py` program with the `-t` flag runs the access time tests, which analyze the following access patterns:
 * Reading and writing one pixel within the video
