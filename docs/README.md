@@ -82,7 +82,7 @@ Note that the better compression ratio is not a result of the lower chunk size; 
 | h5py default   | 64800              | 2688             | (2, 240, 135, 1)   |
 | by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) |
 
-# Run these tests yourself
+# Run these tests yourself :)
 
 1. Choose a MOV or AVI video (<= 40 frames recommended as it is processing intensive)
 2. Clone the github
