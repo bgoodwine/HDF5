@@ -45,6 +45,23 @@ As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file.
 * Reading and writing the entire video
 
 To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. 
+```python
+# test read time of one pixel 
+f = h5py.File(path, 'r+', rdcc_nbytes=0) # rdcc_nbytes = chunk cache size
+start = time.time()
+val = f[dset_name][27,0,0,0]
+end = time.time()
+f.close()
+print(f'Pixel read time:        {end-start}')
+
+# test write time of one pixel 
+f = h5py.File(path, 'r+', rdcc_nbytes=0) # rdcc_nbytes = chunk cache size
+start = time.time()
+f[dset_name][27,0,0,0] = 0
+end = time.time()
+f.close()
+print(f'Pixel write time:       {end-start}')
+```
 
 # Results
 
