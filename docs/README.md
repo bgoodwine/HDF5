@@ -27,7 +27,7 @@ Say for this dataset with (A, 1) dimensional chunks, you want to access one row 
 
 ![](./row_wise.png)
 
-Contrast this with (1, B) dimensional chunks, seen above. Because the chunk dimension aligns with the rows, to access one row, you only have to read in one chunk of data. In this way, if you are knowledgeable about the access patterns that your file will need to accommodate, you can select a chunk dimensionality that aligns with it to improve access time. 
+Contrast this with (1, B) dimensional chunks, seen above. Because the chunk dimension aligns with the rows, to access one row, you only have to read in one chunk of data. In this way, if you are knowledgeable about the access patterns that your file will need to accommodate, you can select a chunk dimensionality that aligns with it to improve access time. In a similar vein, if you are repeatedly accessing segments of data that are much smaller than your chunk sizes, chunking will have more of a detriment to your access time. 
 
 # Tests
 ## Access time & file size with different chunking methods 
@@ -75,7 +75,7 @@ This makes logical sense; if the access is an access to the entire file, then ev
 
 ![](./chunk_size.png)
 
-Note that the better compression ratio is not a result of the lower chunk size; the default h5py chunk dimensions provide a better compression ratio than chunking **by frame+color**, despite having significantly more chunks of a smaller size. 
+Note that the better compression ratio is not a result of the lower chunk size; the default h5py chunk dimensions provide a better compression ratio than chunking **by frame+color**, despite having significantly more chunks of a smaller size. However, because we know the access pattern is by frame, we know this default chunking method will not provide efficient access time; the dimensionality is (2, 240, 135, 1), so multiple frames are grouped together but the pixels for each frame are split among blocks. 
 
 | Method         | Chunk size (bytes) | Number of chunks | Dimensions         |
 |:---------------|:-------------------|:-----------------|:-------------------|
