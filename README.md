@@ -16,11 +16,12 @@ Locally install the pip3 packages required: `./install.sh`
 ### Run your own tests
 `chunks.py` - convert a MOV or AVI video to hdf5, compare file sizes, access times for different chunking methods
 ```
-USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]
+USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-j] [-h]
 	 -f - pass a path to a MOV of AVI file to analyze
 	 -o - overwrite existing files (hdf5 file names built from properties)
 	 -t - run I/O tests
 	 -c - specify compression method (default: gzip)
+	 -j - write all frames of selected video to JPEG images & report combined size
 	 -h - display this message
 ```
 
