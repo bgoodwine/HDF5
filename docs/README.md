@@ -32,8 +32,11 @@ Contrast this with (1, B) dimensional chunks, seen above. Because the chunk dime
 # Tests
 I created a couple `Python` scripts to test different chunking methods and the compression ratio and read and write times associated with each. To interface with the `HDF5` files, I used [h5py](https://docs.h5py.org/en/stable/).
 
+## Analyzing HDF5 performance on video data
+The `chunk.py` program converts a MOV or AVI video file into the other format with [imageio](https://imageio.readthedocs.io/en/stable/), and runs tests on the read time of a single frame from that video.
+
 ## Access time & file size with different chunking methods 
-The `chunk.py` program converts an MOV or AVI video into HDF5 files with the following chunking methods:
+The `chunk.py` program converts a MOV or AVI video into HDF5 files with the following chunking methods:
 * Default h5py chunking method
 * One chunk for the entire video
 * One chunk per frame in the video
