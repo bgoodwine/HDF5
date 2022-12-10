@@ -76,7 +76,7 @@ print(f'Pixel write time:       {end-start}')
 ![file_format](./file_format.png)
 ![access_time](./access_time.png)
 
-HDF5 clearly prioritizes access time over compression, and is a good choice for applications that are knowledgeable about their access patterns and can align the chunks to match them. 
+HDF5 clearly prioritizes access time over compression, and is a good choice for applications that are knowledgeable about their access patterns and can align the chunks to match them. The `JPEG` file size entry is just the sum of the sizes of all 28 frames of the video as JPEGs; it's easy to see that even without motion-prediction coding, the `HDF5` files take up significantly more space.
 
 ## Chunking methods
 
