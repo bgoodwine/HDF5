@@ -30,6 +30,8 @@ Say for this dataset with (A, 1) dimensional chunks, you want to access one row 
 Contrast this with (1, B) dimensional chunks, seen above. Because the chunk dimension aligns with the rows, to access one row, you only have to read in one chunk of data. In this way, if you are knowledgeable about the access patterns that your file will need to accommodate, you can select a chunk dimensionality that aligns with it to improve access time. In a similar vein, if you are repeatedly accessing segments of data that are much smaller than your chunk sizes, chunking will have more of a detriment to your access time. 
 
 # Tests
+I created a couple `Python` scripts to test different chunking methods and the compression ratio and read and write times associated with each. To interface with the `HDF5` files, I used [h5py](https://docs.h5py.org/en/stable/).
+
 ## Access time & file size with different chunking methods 
 The `chunk.py` program converts an MOV or AVI video into HDF5 files with the following chunking methods:
 * Default h5py chunking method
@@ -44,7 +46,7 @@ As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file.
 * Reading and writing one frame within the video
 * Reading and writing the entire video
 
-To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. 
+To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. The file was also reopened for each test; calling `close()` on a `h5py` is equivilant to a setting the close degree to [H5F_CLOSE_STRONG](https://docs.hdfgroup.org/hdf5/v1_12/group___f_a_p_l.html#title50), i.e. all open objects within the file, such as datasets or groups that were being written or read from, are also closed. 
 ```python
 # test read time of one pixel 
 # rdcc_nbytes = chunk cache size
