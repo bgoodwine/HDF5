@@ -49,7 +49,7 @@ As well as converting it to an uncompressed, contiguous (non-chunked) HDF5 file.
 * Reading and writing one frame within the video
 * Reading and writing the entire video
 
-To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. The file was also reopened for each test; calling `close()` on a `h5py` is equivilant to a setting the close degree to [H5F_CLOSE_STRONG](https://docs.hdfgroup.org/hdf5/v1_12/group___f_a_p_l.html#title50), i.e. all open objects within the file, such as datasets or groups that were being written or read from, are also closed. 
+To ensure the reading and writing operations were timed as independent operations, the file under test was closed and reopened between each read or write, and the chunk cache size was set to 0 bytes. The file was also reopened for each test; calling `close()` on a `h5py` is equivalent to a setting the close degree to [H5F_CLOSE_STRONG](https://docs.hdfgroup.org/hdf5/v1_12/group___f_a_p_l.html#title50), i.e. all open objects within the file, such as datasets or groups that were being written or read from, are also closed. 
 ```python
 # test read time of one pixel 
 # rdcc_nbytes = chunk cache size
@@ -103,17 +103,17 @@ This makes logical sense; if the access is an access to the entire file, then ev
 
 Note that the better compression ratio is not a result of the larger chunk size; the `default` h5py chunk dimensions provide a better compression ratio than chunking `by frame+color`, despite having significantly more chunks of a smaller size. While there is a relationship between chunk size and compression ratio, it is clearly not the only factor. 
 
-| Method         | Chunk size (bytes) | Number of chunks | Dimensions         | Compession Ratio |
-|:---------------|:-------------------|:-----------------|:-------------------|:-----------------|
-| h5py default   | 64800              | 2688             | (2, 240, 135, 1)   | 2.4931           |
-| by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) | 2.3309           |
+| Method         | Chunk size (bytes) | Number of chunks | Dimensions         | Compression Ratio |
+|:---------------|:-------------------|:-----------------|:-------------------|:------------------|
+| h5py default   | 64800              | 2688             | (2, 240, 135, 1)   | 2.4931            |
+| by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) | 2.3309            |
 
 However, because we know the access pattern is by frame, we know this default chunking method will not provide efficient access time; the dimensionality is (2, 240, 135, 1), so multiple frames are grouped together but the pixels for each frame are split among blocks.
 
 ![](./default_read.png)
 ![](./default_write.png)
 
-While the access time for a single pixel is clearly much better for `default`, which makes sense as `default` has smaller chunk sizes and therefore less data has to be read in per element accessed, the access time for a single frame is significantly worse for `default` then for either `by frame+color` or `by frame`. While `h5py` can make inteligent decisions on chunk sizes for compression ratio, only someone with knowledge of the access patterns can make an intelligent decision on the chunk dimensions. 
+While the access time for a single pixel is clearly much better for `default`, which makes sense as `default` has smaller chunk sizes and therefore less data has to be read in per element accessed, the access time for a single frame is significantly worse for `default` then for either `by frame+color` or `by frame`. While `h5py` can make intelligent decisions on chunk sizes for compression ratio, only someone with knowledge of the access patterns can make an intelligent decision on the chunk dimensions. 
 
 # Run these tests yourself :)
 
