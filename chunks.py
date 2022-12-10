@@ -10,6 +10,7 @@ import imageio as iio
 import pprint as pp
 
 FILE  = 'files/movies/katrina.mov'
+FILE_FORMATS = ['hdf5', 'avi', 'mov']
 
 ALGS = {'gzip'      : 'gzip',
         'lzf'       : 'lzf',
@@ -30,6 +31,71 @@ def usage(exit_status):
     print('\t -c - specify compression method (default: gzip)')
     print('\t -h - display this message')
     sys.exit(exit_status)
+
+
+# convert one frame of the video to an mp4 for manual gzip tests
+def write_frames(source):
+    reader = iio.get_reader(source)
+
+    i = 0
+    totalsize = 0
+    for im in reader:
+        path = f'files/frames/katrina_frame{i}.jpeg'
+        writer = iio.get_writer(path)
+        writer.append_data(im[:,:,:])
+        writer.close()
+
+        size = os.path.getsize(path)
+        totalsize += size
+
+        i += 1
+        print(f'Frame {i}: {size}')
+    print(f'Saved frames 0-{i}')
+    print(f'Total size: {totalsize}')
+
+
+def write_video(source, destination):
+    if destination.endswith('hdf5'):
+        print(f'ERROR: cannot write to {destination} with iio.')
+        sys.exit(1)
+
+    reader = iio.get_reader(source)
+    meta   = reader.get_meta_data()
+    writer = iio.get_writer(destination, fps=meta['fps'])
+    
+    print(f'Converting: {source} --> {destination}')
+    for im in reader:
+        writer.append_data(im[:,:,:])
+    writer.close()
+    return destination
+
+
+# convert mov/avi to other format, compare with default hdf5 video
+def format_test():
+    if not os.path.exists(FILE):
+        print(f'ERROR: {FILE} does not exist.')
+        usage(1)
+
+    videos = []
+    path = FILE[:-3]
+
+    for fm in FILE_FORMATS:
+        if not os.path.exists(path+fm):
+            videos.append(write_video(FILE, path+fm))
+        else:
+            videos.append(path+fm)
+
+    print(f'{"Path":<25}  {"size (b)":>13}')
+    for video in videos:
+        size = os.path.getsize(video)
+        print(f'{video:<25}  {size:>13}')
+        if not video.endswith('hdf5'):
+            reader = iio.get_reader(video)
+            meta = reader.get_meta_data()
+            pp.pprint(meta)
+        print('')
+        
+    print(f'{"Path":<25}  {"read time (s)":>13}')
 
 
 def test_io(path, dset_name='video_frames'):
@@ -262,22 +328,30 @@ def main():
 
     if not os.path.exists(FILE):
         print(f'ERROR: {FILE} does not exist')
-        sys.exit(1)
+        usage(1)
 
+    # display test information 
     print(f'Analyzing file: {FILE}')
     print(f'Overwrite:      {str(overwrite)}')
     print(f'Run I/O tests:  {str(io_test)}')
     print(f'Compression:    {str(compression)}')
-
     print('')
     print('\tAvailable 3rd party compression algorithms: ', end='')
     print(' '.join([key for key in ALGS.keys()]))
     print('')
 
+    # get current chunking methods to test
     methods = get_chunking_methods(FILE)
-    files = {}
+    files = {} # successful files to analyze in io test
+
+    # convert to default non-chunked HDF5 format
     print(f'Converting to hdf5 contiguous: ')
     files['contiguous'] = write_contiguous(FILE, overwrite=overwrite)
+
+    # convert mov -> avi or avi -> mov
+    print(f'Checking for mov/avi versions...')
+    format_test()
+    
     print(f'Chunking by h5py default chunking selection: ')
     files['default'] = write_chunked(FILE, overwrite=overwrite, compression=compression) # write default chunked
     for method in methods.keys():
