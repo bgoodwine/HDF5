@@ -30,3 +30,14 @@ Chunk types tested
 * entire file
 * by frame
 * by frame and color
+
+### Directory structure
+* `chunks.py` - main test script
+* `gzip_test.sh` - bash script to test speed of gzip 
+* `install.sh` - bash script to install Python packages with pip3
+* `tests/` - programs I wrote to figure out how to use h5py
+* `results/` - my results from i/o tests on 3rd party compression algorithms
+
+### Branches
+* `main` - code
+* `website` - has the `docs/` directory with the github pages website
