@@ -11,7 +11,7 @@ import imageio.v2 as iio
 import imageio.v3 as iio3
 import pprint as pp
 
-FILE  = 'files/movies/katrina.mov'
+#FILE  = 'files/movies/katrina.mov'
 FILE_FORMATS = ['avi', 'mov']
 
 ALGS = {'gzip'      : 'gzip',
@@ -26,11 +26,12 @@ ALGS = {'gzip'      : 'gzip',
 
 
 def usage(exit_status):
-    print('USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-h]')
+    print('USAGE: ./chunks [-f filepath] [-o] [-t] [-c compression] [-j] [-h]')
     print('\t -f - pass a path to a MOV of AVI file to analyze')
     print('\t -o - overwrite existing files (hdf5 file names built from properties)')
     print('\t -t - run I/O tests')
     print('\t -c - specify compression method (default: gzip)')
+    print('\t -j - write all frames of selected video to JPEG images & report combined size')
     print('\t -h - display this message')
     sys.exit(exit_status)
 
@@ -38,11 +39,16 @@ def usage(exit_status):
 # convert one frame of the video to an mp4 for manual gzip tests
 def write_frames(source):
     reader = iio.get_reader(source)
+    prefix = source[:-3]
+    prefix = prefix.split('/')[-1]
+    prefix = 'files/frames/' + prefix + '_frame'
+    if not os.path.exists('files/frames'):
+        os.mkdir('files/frames')
 
     i = 0
     totalsize = 0
     for im in reader:
-        path = f'files/frames/katrina_frame{i}.jpeg'
+        path = prefix + f'{i}.jpeg'
         writer = iio.get_writer(path)
         writer.append_data(im[:,:,:])
         writer.close()
@@ -310,6 +316,7 @@ def main():
     overwrite = False
     compression = 'gzip'
     io_test = False
+    write_jpegs = False
     FILE = 'files/movies/katrina.mov'
 
     if len(sys.argv) > 1:
@@ -324,17 +331,24 @@ def main():
                     compression = None
             elif arg == '-t':
                 io_test = True
+            elif arg == '-j':
+                write_jpegs = True
             elif arg == '-h':
                 usage(0)
 
     if not os.path.exists(FILE):
         print(f'ERROR: {FILE} does not exist')
         usage(1)
+    if FILE[0:6] != 'files/':
+        print(f'ERROR: please place {FILE} in directory named files/')
+        usage(1)
+
 
     # display test information 
     print(f'Analyzing file: {FILE}')
     print(f'Overwrite:      {str(overwrite)}')
     print(f'Run I/O tests:  {str(io_test)}')
+    print(f'Write JPEGS:    {str(write_jpegs)}')
     print(f'Compression:    {str(compression)}')
     print('')
     print('\tAvailable 3rd party compression algorithms: ', end='')
@@ -363,6 +377,9 @@ def main():
                                    chunks=methods[method],
                                    compression=compression,
                                    prefix=method)
+    if write_jpegs:
+        print('\nWriting JPEGs...')
+        write_frames(FILE)
 
     if io_test:
         for method in files:
