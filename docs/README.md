@@ -84,12 +84,12 @@ Compression ratio achieved with gzip for different chunking methods has a genera
 
 ![](./chunking_sizes.png)
 
-Chunking methods **whole** and **by frame** are larger chunks, and have higher compression ratios than **by frame+color**. However, **by frame+color** has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
+Chunking methods `whole` and `by frame` are larger chunks, and have higher compression ratios than `by frame+color`. However, `by frame+color` has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
 
 ![](./read_times.png)
 ![](./write_times.png)
 
-Note that gzip compression scales poorly, which is the cause of the inefficient write times for **by frame** but not **by frame+color**. While **whole** and **by frame** provide similar compression ratios, the access time to the **whole** file is significantly worse than the access time to the **by frame** file unless the entire file is being accessed.
+Note that gzip compression scales poorly, which is the cause of the inefficient write times for `by frame` but not `by frame+color`. While `whole` and `by frame` provide similar compression ratios, the access time to the `whole` file is significantly worse than the access time to the `by frame` file unless the entire file is being accessed.
 
 ![](./all_read_times.png)
 ![](./all_write_times.png)
@@ -98,12 +98,19 @@ This makes logical sense; if the access is an access to the entire file, then ev
 
 ![](./chunk_size.png)
 
-Note that the better compression ratio is not a result of the lower chunk size; the default h5py chunk dimensions provide a better compression ratio than chunking **by frame+color**, despite having significantly more chunks of a smaller size. However, because we know the access pattern is by frame, we know this default chunking method will not provide efficient access time; the dimensionality is (2, 240, 135, 1), so multiple frames are grouped together but the pixels for each frame are split among blocks. 
+Note that the better compression ratio is not a result of the larger chunk size; the `default` h5py chunk dimensions provide a better compression ratio than chunking `by frame+color`, despite having significantly more chunks of a smaller size. While there is a relationship between chunk size and compression ratio, it is clearly not the only factor. 
 
-| Method         | Chunk size (bytes) | Number of chunks | Dimensions         |
-|:---------------|:-------------------|:-----------------|:-------------------|
-| h5py default   | 64800              | 2688             | (2, 240, 135, 1)   |
-| by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) |
+| Method         | Chunk size (bytes) | Number of chunks | Dimensions         | Compession Ratio |
+|:---------------|:-------------------|:-----------------|:-------------------|:-----------------|
+| h5py default   | 64800              | 2688             | (2, 240, 135, 1)   | 2.4931           |
+| by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) | 2.3309           |
+
+However, because we know the access pattern is by frame, we know this default chunking method will not provide efficient access time; the dimensionality is (2, 240, 135, 1), so multiple frames are grouped together but the pixels for each frame are split among blocks.
+
+![](./default_read.png)
+![](./default_write.png)
+
+While the access time for a single pixel is clearly much better for `default`, which makes sense as `default` has smaller chunk sizes and therefore less data has to be read in per element accessed, the access time for a single frame is significantly worse for `default` then for either `by frame+color` or `by frame`. While `h5py` can make inteligent decisions on chunk sizes for compression ratio, only someone with knowledge of the access patterns can make an intelligent decision on the chunk dimensions. 
 
 # Run these tests yourself :)
 
