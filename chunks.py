@@ -6,11 +6,13 @@ import os
 import h5py
 import hdf5plugin
 import numpy as np
-import imageio as iio
+#import imageio as iio
+import imageio.v2 as iio
+import imageio.v3 as iio3
 import pprint as pp
 
 FILE  = 'files/movies/katrina.mov'
-FILE_FORMATS = ['hdf5', 'avi', 'mov']
+FILE_FORMATS = ['avi', 'mov']
 
 ALGS = {'gzip'      : 'gzip',
         'lzf'       : 'lzf',
@@ -71,11 +73,7 @@ def write_video(source, destination):
 
 
 # convert mov/avi to other format, compare with default hdf5 video
-def format_test():
-    if not os.path.exists(FILE):
-        print(f'ERROR: {FILE} does not exist.')
-        usage(1)
-
+def format_test(FILE):
     videos = []
     path = FILE[:-3]
 
@@ -85,18 +83,21 @@ def format_test():
         else:
             videos.append(path+fm)
 
-    print(f'{"Path":<25}  {"size (b)":>13}')
     for video in videos:
         size = os.path.getsize(video)
-        print(f'{video:<25}  {size:>13}')
+        print(f'Path: {video:<25}')
+        print(f'Size: {size:>13}')
         if not video.endswith('hdf5'):
+            start = time.time()
+            frame = iio3.imread(video, index=27, plugin='pyav')
+            end = time.time()
+            print(f'Path: {video:<25}')  
+            print(f'Read time: {end-start:>13}')
             reader = iio.get_reader(video)
             meta = reader.get_meta_data()
             pp.pprint(meta)
         print('')
         
-    print(f'{"Path":<25}  {"read time (s)":>13}')
-
 
 def test_io(path, dset_name='video_frames'):
     with h5py.File(path, 'r+') as f:
@@ -349,8 +350,8 @@ def main():
     files['contiguous'] = write_contiguous(FILE, overwrite=overwrite)
 
     # convert mov -> avi or avi -> mov
-    print(f'Checking for mov/avi versions...')
-    format_test()
+    print(f'\nChecking for mov/avi versions...\n')
+    format_test(FILE)
     
     print(f'Chunking by h5py default chunking selection: ')
     files['default'] = write_chunked(FILE, overwrite=overwrite, compression=compression) # write default chunked
