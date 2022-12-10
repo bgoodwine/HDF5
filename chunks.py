@@ -58,7 +58,7 @@ def write_frames(source):
 
         i += 1
         print(f'Frame {i}: {size}')
-    print(f'Saved frames 0-{i}')
+    print(f'Saved frames 1-{i}')
     print(f'Total size: {totalsize}')
 
 
@@ -102,6 +102,7 @@ def format_test(FILE):
             reader = iio.get_reader(video)
             meta = reader.get_meta_data()
             pp.pprint(meta)
+            print(f'Shape: {frame.shape}')
         print('')
         
 
