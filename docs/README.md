@@ -247,6 +247,6 @@ One of the main benefits of `HDF5` files is that they can store arbitrarily comp
 Python and HDF5](https://www.oreilly.com/library/view/python-and-hdf5/9781491944981/?_gl=1*gpzzfg*_ga*MjAzNTIwOTY4Ni4xNjY3ODU4ODQy*_ga_092EL089CH*MTY3MTEzOTUxMi43LjAuMTY3MTEzOTUyOC40NC4wLjA.) by [Andrew Collette](http://www.andrewcollette.com/)
 * [Earth Sciences: Why HDF Technologies?](https://www.hdfgroup.org/portfolio-item/earth-sciences/)
 
-# "Sufficiently advanced incompetence is indistinguishable from malice" - ?
+# "Sufficiently advanced incompetence is indistinguishable from malice" - Grey's Law
 * [Why is gzip slow despite CPU and hard drive performance not being maxed out?](https://superuser.com/questions/599329/why-is-gzip-slow-despite-cpu-and-hard-drive-performance-not-being-maxed-out)
-* * [Optimal HDF5 dataset chunk shape for reading rows](https://stackoverflow.com/questions/48385256/optimal-hdf5-dataset-chunk-shape-for-reading-rows)
+* [Optimal HDF5 dataset chunk shape for reading rows](https://stackoverflow.com/questions/48385256/optimal-hdf5-dataset-chunk-shape-for-reading-rows)
