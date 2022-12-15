@@ -231,6 +231,7 @@ Even when running experiments on access time for one type of secondary memory, [
 One of the main benefits of `HDF5` files is that they can store arbitrarily complex data types within the datasets, including complex data types. A future experiment could involve comparing access time and compression ratio of `HDF5` files and other file formats for increasingly complex data types to see if `HDF5` provides any significant advantage over alternatives, or seeing how `HDF5` compares to other mixed-type dataset file formats.
 
 # The Docs
+![](./debugging.jpeg)
 * [h5py](https://www.google.com/url?q=https://docs.h5py.org/en/stable/build.html%23&sa=D&source=editors&ust=1671143312971778&usg=AOvVaw2IL5pifOKz1nf2IobvzRu_)
 * [hdf5plugin](http://www.silx.org/doc/hdf5plugin/latest/usage.html)
 * [hdf5storage](https://pythonhosted.org/hdf5storage/index.html)
