@@ -19,25 +19,25 @@ So to read one element of a chunked dataset, the entire chunk must first be read
 ![](./chunk_cache.png)
 > Source: [Improving I/O Performance When Working with HDF5 Compressed Datasets](https://support.hdfgroup.org/HDF5/doc/TechNotes/TechNote-HDF5-ImprovingIOPerformanceCompressedDatasets.pdf) with minor changes to illustrate the chunk cache
 
-Selecting an appropriate chunk size is not as important as selecting an appropriate chunk dimension; if you are aware of the way in which your application will access the data within a dataset, you can align the chunks to the anticipated access pattern to improve access time. For example, given you have an AxB or (A, B) dimensional dataset, if you chunk by (1, B), then for each row in A, you have one chunk that contains all the columns in B. If you chunk by (A, 1), for each column in B, you have one chunk that contains all the rows in A; this is the example shown below. 
+Selecting an appropriate chunk size is not as important as selecting an appropriate chunk dimension; if you are aware of the way in which your application will access the data within a dataset, you can align the chunks to the anticipated access pattern to improve access time. For example, given you have an `AxB` or `(A, B)` dimensional dataset, if you chunk by `(1, B)`, then for each row in `A`, you have one chunk that contains all the columns in `B`. If you chunk by `(A, 1)`, for each column in `B`, you have one chunk that contains all the rows in `A`; this is the example shown below. 
 
 ![](./column_wise.png)
 
-Say for this dataset with (A, 1) dimensional chunks, you want to access one row of data, seen in orange above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the orange data you actually want to access. So, to access the entire row, you would actually have to read in the entire file from disk!
+Say for this dataset with `(A, 1)` dimensional chunks, you want to access one row of data, seen in orange above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the orange data you actually want to access. So, to access the entire row, you would actually have to read in the entire file from disk!
 
 ![](./row_wise.png)
 
-Contrast this with (1, B) dimensional chunks, seen above. Because the chunk dimension aligns with the rows, to access one row, you only have to read in one chunk of data. In this way, if you are knowledgeable about the access patterns that your file will need to accommodate, you can select a chunk dimensionality that aligns with it to improve access time. In a similar vein, if you are repeatedly accessing segments of data that are much smaller than your chunk sizes, chunking will have more of a detriment to your access time. 
+Contrast this with `(1, B)` dimensional chunks, seen above. Because the chunk dimension aligns with the rows, to access one row, you only have to read in one chunk of data. In this way, if you are knowledgeable about the access patterns that your file will need to accommodate, you can select a chunk dimensionality that aligns with it to improve access time. In a similar vein, if you are repeatedly accessing segments of data that are much smaller than your chunk sizes, chunking will have more of a detriment to your access time. 
 
 # Tests
-I created a couple `Python` scripts to test different chunking methods and the compression ratio and read and write times associated with each. To interface with the `HDF5` files, I used [h5py](https://docs.h5py.org/en/stable/).
+I created a couple Python scripts to test different chunking methods and the compression ratio and read and write times associated with each. To interface with the `HDF5` files, I used [h5py](https://docs.h5py.org/en/stable/).
 
 ## Analyzing HDF5 performance on video data
 The `chunk.py` program converts a MOV or AVI video file into the other format with [imageio](https://imageio.readthedocs.io/en/stable/), and runs tests on the read time of a single frame from that video.
 
 ## Access time & file size with different chunking methods 
 The `chunk.py` program converts a MOV or AVI video into HDF5 files with the following chunking methods:
-* Default h5py chunking method
+* Default `h5py` chunking method
 * One chunk for the entire video
 * One chunk per frame in the video
 * One chunk per frame and color channel in the video 
@@ -101,14 +101,14 @@ This makes logical sense; if the access is an access to the entire file, then ev
 
 ![](./chunk_size.png)
 
-Note that the better compression ratio is not a result of the larger chunk size; the `default` h5py chunk dimensions provide a better compression ratio than chunking `by frame+color`, despite having significantly more chunks of a smaller size. While there is a relationship between chunk size and compression ratio, it is clearly not the only factor. 
+Note that the better compression ratio is not a result of the larger chunk size; the `default` `h5py` chunk dimensions provide a better compression ratio than chunking `by frame+color`, despite having significantly more chunks of a smaller size. While there is a relationship between chunk size and compression ratio, it is clearly not the only factor. 
 
 | Method         | Chunk size (bytes) | Number of chunks | Dimensions         | Compression Ratio |
 |:---------------|:-------------------|:-----------------|:-------------------|:------------------|
 | h5py default   | 64800              | 2688             | (2, 240, 135, 1)   | 2.4931            |
 | by frame+color | 2073600            | 84               | (1, 1920, 1080, 1) | 2.3309            |
 
-However, because we know the access pattern is by frame, we know this default chunking method will not provide efficient access time; the dimensionality is (2, 240, 135, 1), so multiple frames are grouped together but the pixels for each frame are split among blocks.
+However, because we know the access pattern is by frame, we know this default chunking method will not provide efficient access time; the dimensionality is `(2, 240, 135, 1)`, so multiple frames are grouped together but the pixels for each frame are split among blocks.
 
 ![](./default_read.png)
 ![](./default_write.png)
@@ -116,7 +116,7 @@ However, because we know the access pattern is by frame, we know this default ch
 While the access time for a single pixel is clearly much better for `default`, which makes sense as `default` has smaller chunk sizes and therefore less data has to be read in per element accessed, the access time for a single frame is significantly worse for `default` then for either `by frame+color` or `by frame`. While `h5py` can make intelligent decisions on chunk sizes for compression ratio, only someone with knowledge of the access patterns can make an intelligent decision on the chunk dimensions. 
 
 ## Compression algorithms
-The avaialble 3rd-party compression algorithms from [hdf5plugin](http://www.silx.org/doc/hdf5plugin/latest/usage.html) included algorithms that performed better than and worse than the HDF5-included GZIP when it came to total compression acheived.
+The avaialble 3rd-party compression algorithms from [hdf5plugin](http://www.silx.org/doc/hdf5plugin/latest/usage.html) included algorithms that performed better than and worse than the HDF5-included `gzip` when it came to total compression acheived.
 
 ![](./compression_sizes.png)
 
@@ -130,10 +130,10 @@ Note that `bzip2` seems to provide neither relatively good compression nor relat
 For all the compression algorithms provided, read time is worse than write time, probably indicating that compression takes longer than decompression. 
 
 ## Conclusions 
-1. HDF5 files prioritize speed of access over compression 
-2. You can avoid detriment to access time by aligning your chunks with your access pattern; because chunks are stored contiguously, accessing a chunk only costs the compression and decompression time
-3. Aside from selecting a chunk size that strikes a balance between compression and access time that best fits your application, you must also select a compression algorithm that strikes a balance between compression and decompression that best fits your application
-4. If you really only want to access the entire file at a time, then compression is (almost) free 
+1. `HDF5` files prioritize `speed` of access over `compression`
+2. You can avoid detriment to access time by aligning your chunks with your access pattern; because `chunks are stored contiguously`, accessing a chunk only costs the compression and decompression time
+3. Aside from selecting a chunk size that strikes a balance between compression and access time that best fits your application, you must also `select a compression algorithm` that strikes a balance between compression and decompression that best fits your application
+4. If you really only want to access the entire file at a time, then compression is `(almost) free` 
 
 
 # Run these tests yourself
@@ -207,7 +207,7 @@ all_frames = f[dset_name][0:29,0:3071,0:2303,0:2]
 
 # Or expand on it
 ## Third-party compression algorithms 
-Multiple compression algorithms are available for the chunked HDF5 files, including 3rd party compression algorithms. These can be specified with the `-c [algorithm]` option.
+Multiple compression algorithms are available for the chunked `HDF5` files, including 3rd party compression algorithms. These can be specified with the `-c [algorithm]` option. While I compared the differences in file sizes and access time for different types of access for most of these algorithms when chunking `by frame`, a future experiment could be comparing compression algorithms' performance with different chunking methods or different data types. 
 
 ```python
 # Available compression algorithms & their names
@@ -222,7 +222,10 @@ ALGS = {'gzip'      : 'gzip',
         'zstd'      : hdf5plugin.Zstd()}
 ```
 
-## Mixed datasets
+## Memory access type
+Memory access, even on a personal computer, [is complicated](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/8_MainMemory.html). Operating systems present an illusion of contiguous memory, while allocating blocks of memory that align with easier-to-access blocks in physical memory. Most also wait to write to disk until the opportune moment and make replicas of files to protect against data loss. All of these factors play a role in my measured access time. 
 
 ## Mixed datasets
-One of the main benefits of... 
+One of the main benefits of `HDF5` files is that they can store arbitrarily complex data types within the datasets, including complex data types. A future experiment could involve comparing access time and compression ratio of `HDF5` files and other file formats for increasingly complex data types to see if `HDF5` provides any significant advantage over alternatives, or seeing how `HDF5` compares to other mixed-type dataset file formats.
+
+# References
