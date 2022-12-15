@@ -223,9 +223,37 @@ ALGS = {'gzip'      : 'gzip',
 ```
 
 ## Memory access type
-Memory access, even on a personal computer, [is complicated](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/8_MainMemory.html). Operating systems present an illusion of contiguous memory, while allocating blocks of memory that align with easier-to-access blocks in physical memory. Most also wait to write to disk until the opportune moment and make replicas of files to protect against data loss. All of these factors play a role in my measured access time. 
+Memory accesses can be to the computer's [primary memory, like RAM or ROM](https://www.geeksforgeeks.org/random-access-memory-ram-and-read-only-memory-rom/), or [secondary memory, like the computer's hard disk](https://en.wikipedia.org/wiki/Hard_disk_drive). A future experiment could involve comparing hard disk (HDD) access to other types of secondary memory (such as SSD).
+
+Even when running experiments on access time for one type of secondary memory, [it's complicated](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/8_MainMemory.html). Operating systems present an illusion of contiguous memory, while allocating blocks of memory that align with easier-to-access blocks in physical memory. Most also wait to write changes recorded in RAM to the HDD until the opportune moment and make replicas of files to protect against data loss. These, along with many other factors, play a role in my measured access time.
 
 ## Mixed datasets
 One of the main benefits of `HDF5` files is that they can store arbitrarily complex data types within the datasets, including complex data types. A future experiment could involve comparing access time and compression ratio of `HDF5` files and other file formats for increasingly complex data types to see if `HDF5` provides any significant advantage over alternatives, or seeing how `HDF5` compares to other mixed-type dataset file formats.
 
+# The Docs
+* [h5py](https://www.google.com/url?q=https://docs.h5py.org/en/stable/build.html%23&sa=D&source=editors&ust=1671143312971778&usg=AOvVaw2IL5pifOKz1nf2IobvzRu_)
+* [hdf5plugin](http://www.silx.org/doc/hdf5plugin/latest/usage.html)
+* [hdf5storage](https://pythonhosted.org/hdf5storage/index.html)
+* [Introduction to HDF5](http://davis.lbl.gov/Manuals/HDF5-1.8.7/H5.intro.html)
+* [HDF5: API Specification Reference Manual](http://davis.lbl.gov/Manuals/HDF5-1.8.7/RM/RM_H5Front.html)
+
 # References
+* [Working with Hierarchical Data Format (HDF5) Files](http://matlab.izmiran.ru/help/techdoc/matlab_prog/ch_imp41.html)
+* [Optimal HDF5 dataset chunk shape for reading rows](https://stackoverflow.com/questions/48385256/optimal-hdf5-dataset-chunk-shape-for-reading-rows)
+* [Chapter 4. How Chunking and Compression Can Help You
+](https://www.oreilly.com/library/view/python-and-hdf5/9781491944981/ch04.html) from [
+Python and HDF5](https://www.oreilly.com/library/view/python-and-hdf5/9781491944981/?_gl=1*gpzzfg*_ga*MjAzNTIwOTY4Ni4xNjY3ODU4ODQy*_ga_092EL089CH*MTY3MTEzOTUxMi43LjAuMTY3MTEzOTUyOC40NC4wLjA.) by [Andrew Collette](http://www.andrewcollette.com/)
+* [Why is gzip slow despite CPU and hard drive performance not being maxed out?](https://superuser.com/questions/599329/why-is-gzip-slow-despite-cpu-and-hard-drive-performance-not-being-maxed-out)
+* [Earth Sciences: Why HDF Technologies?](https://www.hdfgroup.org/portfolio-item/earth-sciences/)
+
+<pre>
+|-----------|
+| THANK     |
+| YOU       |
+| FOR       |
+| READING!  |
+|-----------|
+(\__/) ||
+(•ㅅ•) ||
+/ 　 づ
+</pre>
