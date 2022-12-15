@@ -14,7 +14,7 @@ HDF5 datasets can either be stored contiguously or in chunks, which are indexed 
 ![](./storage_types.png)
 > Source: [Improving I/O Performance When Working with HDF5 Compressed Datasets](https://support.hdfgroup.org/HDF5/doc/TechNotes/TechNote-HDF5-ImprovingIOPerformanceCompressedDatasets.pdf)
 
-So to read one element of a chunked dataset, the entire chunk must first be read into the chunk cache, the chunk must be decompressed, and only then can the individual element be read by the application. Once a chunk is in the chunk cache, any data within that chunk can be read by the application without needing to repeat this process. However, as the chunk cache is only so large and can only fit so many chunks at a time, chunks will be kicked out of the cache once enough other chunks have been accessed. The default chunk cache size is 1MB, but it can be modified if your system has the resources. 
+So to read one element of a chunked dataset, the entire chunk must first be read into the chunk cache, the chunk must be decompressed, and only then can the individual element be read by the application. Once a chunk is in the chunk cache, any data within that chunk can be read by the application without needing to repeat this process. However, as the chunk cache is only so large and can only fit so many chunks at a time, chunks will be kicked out of the cache once enough other chunks have been accessed. The default chunk cache size is 1MB, but [it can be modified](https://stackoverflow.com/questions/14653259/how-to-set-cache-settings-while-using-h5py-high-level-interface) if your system has the resources. 
 
 ![](./chunk_cache.png)
 > Source: [Improving I/O Performance When Working with HDF5 Compressed Datasets](https://support.hdfgroup.org/HDF5/doc/TechNotes/TechNote-HDF5-ImprovingIOPerformanceCompressedDatasets.pdf) with minor changes to illustrate the chunk cache
@@ -92,7 +92,7 @@ Chunking methods `whole` and `by frame` are larger chunks, and have higher compr
 ![](./read_times.png)
 ![](./write_times.png)
 
-Note that gzip compression scales poorly, which is the cause of the inefficient write times for `by frame` but not `by frame+color`. While `whole` and `by frame` provide similar compression ratios, the access time to the `whole` file is significantly worse than the access time to the `by frame` file unless the entire file is being accessed.
+Note that [gzip compression scales poorly](https://superuser.com/questions/599329/why-is-gzip-slow-despite-cpu-and-hard-drive-performance-not-being-maxed-out), which is the cause of the inefficient write times for `by frame` but not `by frame+color`. While `whole` and `by frame` provide similar compression ratios, the access time to the `whole` file is significantly worse than the access time to the `by frame` file unless the entire file is being accessed.
 
 ![](./all_read_times.png)
 ![](./all_write_times.png)
@@ -115,7 +115,14 @@ However, because we know the access pattern is by frame, we know this default ch
 
 While the access time for a single pixel is clearly much better for `default`, which makes sense as `default` has smaller chunk sizes and therefore less data has to be read in per element accessed, the access time for a single frame is significantly worse for `default` then for either `by frame+color` or `by frame`. While `h5py` can make intelligent decisions on chunk sizes for compression ratio, only someone with knowledge of the access patterns can make an intelligent decision on the chunk dimensions. 
 
-# Run these tests yourself :)
+## Conclusions 
+1. HDF5 files prioritize speed of access over compression 
+2. You can avoid detriment to access time by aligning your chunks with your access pattern; because chunks are stored contiguously, accessing a chunk only costs the compression and decompression time
+3. Aside from selecting a chunk size that strikes a balance between compression and access time that best fits your application, you must also select a compression algorithm that strikes a balance between compression and decompression that best fits your application
+4. If you really only want to access the entire file at a time, then compression is (almost) free 
+
+
+# Run these tests yourself
 
 1. Choose a MOV or AVI video (<= 40 frames recommended as it is processing intensive)
 2. Clone the github
@@ -184,6 +191,8 @@ one_frame = f[dset_name][27,0:1919,0:1079,0:2]
 all_frames = f[dset_name][0:29,0:3071,0:2303,0:2]
 ```
 
+# Or expand on it
+## Third-party compression algorithms 
 Multiple compression algorithms are available for the chunked HDF5 files, including 3rd party compression algorithms. These can be specified with the `-c [algorithm]` option.
 
 ```python
@@ -198,3 +207,8 @@ ALGS = {'gzip'      : 'gzip',
         'zfp'       : hdf5plugin.Zfp(reversible=True),
         'zstd'      : hdf5plugin.Zstd()}
 ```
+
+## Mixed datasets
+
+## Mixed datasets
+One of the main benefits of... 
