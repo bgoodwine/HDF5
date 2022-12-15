@@ -233,20 +233,20 @@ Even when running experiments on access time for one type of secondary memory, [
 One of the main benefits of `HDF5` files is that they can store arbitrarily complex data types within the datasets, including complex data types. A future experiment could involve comparing access time and compression ratio of `HDF5` files and other file formats for increasingly complex data types to see if `HDF5` provides any significant advantage over alternatives, or seeing how `HDF5` compares to other mixed-type dataset file formats.
 
 # References
-## "6 hours of debugging can save you 5 minutes of reading documentation" - @jcsrb on Twitter
+### "6 hours of debugging can save you 5 minutes of reading documentation" - @jcsrb on Twitter
 * [h5py](https://www.google.com/url?q=https://docs.h5py.org/en/stable/build.html%23&sa=D&source=editors&ust=1671143312971778&usg=AOvVaw2IL5pifOKz1nf2IobvzRu_)
 * [hdf5plugin](http://www.silx.org/doc/hdf5plugin/latest/usage.html)
 * [hdf5storage](https://pythonhosted.org/hdf5storage/index.html)
 * [Introduction to HDF5](http://davis.lbl.gov/Manuals/HDF5-1.8.7/H5.intro.html)
 * [HDF5: API Specification Reference Manual](http://davis.lbl.gov/Manuals/HDF5-1.8.7/RM/RM_H5Front.html)
 
-# "I checked this out weeks ago for a bit of light reading" - Hermonie 
+### "I checked this out weeks ago for a bit of light reading" - Hermonie 
 * [Working with Hierarchical Data Format (HDF5) Files](http://matlab.izmiran.ru/help/techdoc/matlab_prog/ch_imp41.html)
 * [Chapter 4. How Chunking and Compression Can Help You
 ](https://www.oreilly.com/library/view/python-and-hdf5/9781491944981/ch04.html) from [
 Python and HDF5](https://www.oreilly.com/library/view/python-and-hdf5/9781491944981/?_gl=1*gpzzfg*_ga*MjAzNTIwOTY4Ni4xNjY3ODU4ODQy*_ga_092EL089CH*MTY3MTEzOTUxMi43LjAuMTY3MTEzOTUyOC40NC4wLjA.) by [Andrew Collette](http://www.andrewcollette.com/)
 * [Earth Sciences: Why HDF Technologies?](https://www.hdfgroup.org/portfolio-item/earth-sciences/)
 
-# "Sufficiently advanced incompetence is indistinguishable from malice" - Grey's Law
+### "Sufficiently advanced incompetence is indistinguishable from malice" - Grey's Law
 * [Why is gzip slow despite CPU and hard drive performance not being maxed out?](https://superuser.com/questions/599329/why-is-gzip-slow-despite-cpu-and-hard-drive-performance-not-being-maxed-out)
 * [Optimal HDF5 dataset chunk shape for reading rows](https://stackoverflow.com/questions/48385256/optimal-hdf5-dataset-chunk-shape-for-reading-rows)
