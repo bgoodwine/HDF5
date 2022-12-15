@@ -83,11 +83,11 @@ HDF5 clearly prioritizes access time over compression, and is a good choice for 
 
 ## Chunking methods
 
-Compression ratio achieved with gzip for different chunking methods has a general trend of a smaller chunk size leading to larger files; more chunks mean more entries into the B-tree the chunks are stored in, and smaller intervals that can be compressed.  
+Compression ratio achieved with `gzip` for different chunking methods has a general trend of a smaller chunk size leading to larger files; more chunks mean more entries into the B-tree the chunks are stored in, and smaller intervals that can be compressed.  
 
 ![](./chunking_sizes.png)
 
-Chunking methods `whole` and `by frame` are larger chunks, and have higher compression ratios than `by frame+color`. However, `by frame+color` has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with gzip. 
+Chunking methods `whole` and `by frame` are larger chunks, and have higher compression ratios than `by frame+color`. However, `by frame+color` has significantly faster access times, as seen in the figures below; read and write times for HDF5 video files with different chunking methods, all compressed with `gzip`. 
 
 ![](./read_times.png)
 ![](./write_times.png)
@@ -114,6 +114,20 @@ However, because we know the access pattern is by frame, we know this default ch
 ![](./default_write.png)
 
 While the access time for a single pixel is clearly much better for `default`, which makes sense as `default` has smaller chunk sizes and therefore less data has to be read in per element accessed, the access time for a single frame is significantly worse for `default` then for either `by frame+color` or `by frame`. While `h5py` can make intelligent decisions on chunk sizes for compression ratio, only someone with knowledge of the access patterns can make an intelligent decision on the chunk dimensions. 
+
+## Compression algorithms
+The avaialble 3rd-party compression algorithms from [hdf5plugin](http://www.silx.org/doc/hdf5plugin/latest/usage.html) included algorithms that performed better than and worse than the HDF5-included GZIP when it came to total compression acheived.
+
+![](./compression_sizes.png)
+
+While `sz` is clearly the best compression algorithm among those provided for file size, `lz4` and `zstd` had the fastest access times. While they provide similar access times, `zstd` has a bit better compression ratio. 
+
+![](./compression_read.png)
+![](./compression_write.png)
+
+Note that `bzip2` seems to provide neither relatively good compression nor relatively fast access times in comparison to other available 3rd-party compression algorithms, as `gzip`, which creates only a slightly larger file, has significnatly better access times, similar to `sz`. 
+
+For all the compression algorithms provided, read time is worse than write time, probably indicating that compression takes longer than decompression. 
 
 ## Conclusions 
 1. HDF5 files prioritize speed of access over compression 
