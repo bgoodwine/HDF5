@@ -205,7 +205,7 @@ one_frame = f[dset_name][27,0:1919,0:1079,0:2]
 all_frames = f[dset_name][0:29,0:3071,0:2303,0:2]
 ```
 
-# Or expand on it
+# Or run some new experiments
 ## Third-party compression algorithms 
 Multiple compression algorithms are available for the chunked `HDF5` files, including 3rd party compression algorithms. These can be specified with the `-c [algorithm]` option. While I compared the differences in file sizes and access time for different types of access for most of these algorithms when chunking `by frame`, a future experiment could be comparing compression algorithms' performance with different chunking methods or different data types. 
 
@@ -222,10 +222,12 @@ ALGS = {'gzip'      : 'gzip',
         'zstd'      : hdf5plugin.Zstd()}
 ```
 
+Some additional, but unanalyzed results are in the `results` directory. 
+
 ## Memory access type
 Memory accesses can be to the computer's [primary memory, like RAM or ROM](https://www.geeksforgeeks.org/random-access-memory-ram-and-read-only-memory-rom/), or [secondary memory, like the computer's hard disk](https://en.wikipedia.org/wiki/Hard_disk_drive). A future experiment could involve comparing hard disk (HDD) access to other types of secondary memory (such as SSD).
 
-Even when running experiments on access time for one type of secondary memory, [it's complicated](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/8_MainMemory.html). Operating systems present an illusion of contiguous memory, while allocating blocks of memory that align with easier-to-access blocks in physical memory. Most also wait to write changes recorded in RAM to the HDD until the opportune moment and make replicas of files to protect against data loss. These, along with many other factors, play a role in my measured access time.
+Even when running experiments on access time for one type of secondary memory, [it's complicated](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/8_MainMemory.html). Operating systems present an illusion of contiguous memory, while allocating blocks of memory that align with easier-to-access blocks in physical memory. Most also wait to write changes recorded in RAM to the HDD until the opportune moment and make replicas of files to protect against data loss. These, along with many other factors, play a role in measured access times.
 
 ## Mixed datasets
 One of the main benefits of `HDF5` files is that they can store arbitrarily complex data types within the datasets, including complex data types. A future experiment could involve comparing access time and compression ratio of `HDF5` files and other file formats for increasingly complex data types to see if `HDF5` provides any significant advantage over alternatives, or seeing how `HDF5` compares to other mixed-type dataset file formats.
@@ -246,15 +248,3 @@ One of the main benefits of `HDF5` files is that they can store arbitrarily comp
 Python and HDF5](https://www.oreilly.com/library/view/python-and-hdf5/9781491944981/?_gl=1*gpzzfg*_ga*MjAzNTIwOTY4Ni4xNjY3ODU4ODQy*_ga_092EL089CH*MTY3MTEzOTUxMi43LjAuMTY3MTEzOTUyOC40NC4wLjA.) by [Andrew Collette](http://www.andrewcollette.com/)
 * [Why is gzip slow despite CPU and hard drive performance not being maxed out?](https://superuser.com/questions/599329/why-is-gzip-slow-despite-cpu-and-hard-drive-performance-not-being-maxed-out)
 * [Earth Sciences: Why HDF Technologies?](https://www.hdfgroup.org/portfolio-item/earth-sciences/)
-
-<pre>
-|-----------|
-| THANK     |
-| YOU       |
-| FOR       |
-| READING!  |
-|-----------|
-(\__/) ||
-(•ㅅ•) ||
-/ 　 づ
-</pre>
