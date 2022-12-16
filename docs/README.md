@@ -1,10 +1,10 @@
 # Background on HDF5
 
-[HDF5](https://www.hdfgroup.org/solutions/hdf5/) is a file format that structures data in a similar way to a file system; data is stored in arbitrarily complex `NxN` datasets, which can be organized into groups and sub-groups. Groups can contain both datasets and other groups, and datasets can be of any dimension and data type. `HDF5` files are also self-describing; datasets and groups both have attribute lists that stores their metadata. 
+[HDF5](https://www.hdfgroup.org/solutions/hdf5/) is a file format that structures data in a similar way to a file system; data is stored in arbitrarily complex `NxN` datasets, which can be organized into groups and sub-groups. Groups can contain both datasets and other groups, and datasets can be of any dimension and data type. `HDF5` files are also self-describing; datasets and groups both have attribute lists that store their metadata. 
 
 ![](./format.png)
 
-[The HDF Group](https://www.hdfgroup.org/portfolio-item/earth-sciences/) identifies out why satellites use `HDF5` for earth sciences data, highlighting two major benefits: `customizability` and `scalability`.
+[The HDF Group](https://www.hdfgroup.org/portfolio-item/earth-sciences/) identifies why satellites use `HDF5` for earth sciences data, highlighting two major benefits: `customizability` and `scalability`.
 
 > "As satellites and other instruments increase their ability to collect data at higher and higher resolution, they need a format that can scale easily and that can provide the ability to acquire data quickly, provide access to specific areas of interest out of large masses of information, accommodate increasingly complex and evolving metadata, and be trusted to support long-term archiving."
 
@@ -22,7 +22,7 @@ Selecting an appropriate chunk size is not as important as selecting an appropri
 
 ![](./column_wise.png)
 
-Say for this dataset with `(A, 1)` dimensional chunks, you want to access one row of data, seen in orange above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the small portion of data that you actually want to access. So, to access the just one row, you would actually have to read in the entire file from disk!
+Say for this dataset with `(A, 1)` dimensional chunks, you want to access one row of data, seen in orange above. To access that small square of orange data in the chunk, you have to read the entire chunk into the chunk cache before you can read in the small portion of data that you actually want to access. So, to access just one row, you would actually have to read in the entire file from disk!
 
 ![](./row_wise.png)
 
