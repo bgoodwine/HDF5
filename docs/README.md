@@ -223,6 +223,9 @@ ALGS = {'gzip'      : 'gzip',
 
 Some additional, but unanalyzed results are in the `results` directory. 
 
+## Chunk cache
+I removed the chunk cache for my experiments, which in many cases significantly speeds up access time for chunked files. Future work could include what types of access patterns most benefit from the chunk cache or what factors should be considered when deciding the chunk cache size. 
+
 ## Memory access type
 Memory accesses can be to the computer's [primary memory, like RAM or ROM](https://www.geeksforgeeks.org/random-access-memory-ram-and-read-only-memory-rom/), or [secondary memory, like the computer's hard disk](https://en.wikipedia.org/wiki/Hard_disk_drive). A future experiment could involve comparing hard disk (HDD) access to other types of secondary memory (such as SSD).
 
