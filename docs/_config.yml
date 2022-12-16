@@ -5,3 +5,4 @@ plugins:
 
 title: HDF5 & Chunk Selection for Audio and Video
 description: Tests on chunk selection for audio and video and its effect on access time and compression
+show_downloads: true
